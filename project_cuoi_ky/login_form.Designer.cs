@@ -32,10 +32,10 @@
             this.titleLabel = new System.Windows.Forms.Label();
             this.userLabel = new System.Windows.Forms.Label();
             this.passwordLabel = new System.Windows.Forms.Label();
-            this.userTB = new System.Windows.Forms.TextBox();
-            this.passwordTB = new System.Windows.Forms.TextBox();
+            this.tbUser = new System.Windows.Forms.TextBox();
+            this.tbPassword = new System.Windows.Forms.TextBox();
             this.forgotLabel = new System.Windows.Forms.LinkLabel();
-            this.loginBtn = new System.Windows.Forms.Button();
+            this.btnLogin = new System.Windows.Forms.Button();
             this.registerLabel = new System.Windows.Forms.Label();
             this.registerLinkLabel = new System.Windows.Forms.LinkLabel();
             ((System.ComponentModel.ISupportInitialize)(this.logoBox)).BeginInit();
@@ -57,9 +57,9 @@
             this.titleLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(111)))), ((int)(((byte)(111)))));
             this.titleLabel.Location = new System.Drawing.Point(253, 243);
             this.titleLabel.Name = "titleLabel";
-            this.titleLabel.Size = new System.Drawing.Size(156, 65);
+            this.titleLabel.Size = new System.Drawing.Size(158, 65);
             this.titleLabel.TabIndex = 1;
-            this.titleLabel.Text = "Chat4";
+            this.titleLabel.Text = "ChatR";
             // 
             // userLabel
             // 
@@ -81,19 +81,20 @@
             this.passwordLabel.TabIndex = 3;
             this.passwordLabel.Text = "Password";
             // 
-            // userTB
+            // tbUser
             // 
-            this.userTB.Location = new System.Drawing.Point(210, 311);
-            this.userTB.Name = "userTB";
-            this.userTB.Size = new System.Drawing.Size(261, 20);
-            this.userTB.TabIndex = 4;
+            this.tbUser.Location = new System.Drawing.Point(210, 311);
+            this.tbUser.Name = "tbUser";
+            this.tbUser.Size = new System.Drawing.Size(261, 20);
+            this.tbUser.TabIndex = 4;
             // 
-            // passwordTB
+            // tbPassword
             // 
-            this.passwordTB.Location = new System.Drawing.Point(210, 337);
-            this.passwordTB.Name = "passwordTB";
-            this.passwordTB.Size = new System.Drawing.Size(261, 20);
-            this.passwordTB.TabIndex = 5;
+            this.tbPassword.Location = new System.Drawing.Point(210, 337);
+            this.tbPassword.Name = "tbPassword";
+            this.tbPassword.Size = new System.Drawing.Size(261, 20);
+            this.tbPassword.TabIndex = 5;
+            this.tbPassword.UseSystemPasswordChar = true;
             // 
             // forgotLabel
             // 
@@ -109,17 +110,18 @@
             this.forgotLabel.VisitedLinkColor = System.Drawing.Color.Black;
             this.forgotLabel.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.forgotLabel_LinkClicked);
             // 
-            // loginBtn
+            // btnLogin
             // 
-            this.loginBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(111)))), ((int)(((byte)(111)))));
-            this.loginBtn.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.loginBtn.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.loginBtn.Location = new System.Drawing.Point(251, 380);
-            this.loginBtn.Name = "loginBtn";
-            this.loginBtn.Size = new System.Drawing.Size(158, 36);
-            this.loginBtn.TabIndex = 7;
-            this.loginBtn.Text = "Login";
-            this.loginBtn.UseVisualStyleBackColor = false;
+            this.btnLogin.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(111)))), ((int)(((byte)(111)))));
+            this.btnLogin.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnLogin.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.btnLogin.Location = new System.Drawing.Point(251, 380);
+            this.btnLogin.Name = "btnLogin";
+            this.btnLogin.Size = new System.Drawing.Size(158, 36);
+            this.btnLogin.TabIndex = 7;
+            this.btnLogin.Text = "Login";
+            this.btnLogin.UseVisualStyleBackColor = false;
+            this.btnLogin.Click += new System.EventHandler(this.btnLogin_Click);
             // 
             // registerLabel
             // 
@@ -154,20 +156,21 @@
             this.ClientSize = new System.Drawing.Size(683, 524);
             this.Controls.Add(this.registerLinkLabel);
             this.Controls.Add(this.registerLabel);
-            this.Controls.Add(this.loginBtn);
+            this.Controls.Add(this.btnLogin);
             this.Controls.Add(this.forgotLabel);
-            this.Controls.Add(this.passwordTB);
-            this.Controls.Add(this.userTB);
+            this.Controls.Add(this.tbPassword);
+            this.Controls.Add(this.tbUser);
             this.Controls.Add(this.passwordLabel);
             this.Controls.Add(this.userLabel);
             this.Controls.Add(this.titleLabel);
             this.Controls.Add(this.logoBox);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.ImeMode = System.Windows.Forms.ImeMode.Alpha;
             this.Name = "login";
             this.Opacity = 0.9D;
             this.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Chat4_Login";
+            this.Text = "ChatR_Login";
             this.WindowState = System.Windows.Forms.FormWindowState.Minimized;
             ((System.ComponentModel.ISupportInitialize)(this.logoBox)).EndInit();
             this.ResumeLayout(false);
@@ -181,10 +184,10 @@
         private System.Windows.Forms.Label titleLabel;
         private System.Windows.Forms.Label userLabel;
         private System.Windows.Forms.Label passwordLabel;
-        private System.Windows.Forms.TextBox userTB;
-        private System.Windows.Forms.TextBox passwordTB;
+        private System.Windows.Forms.TextBox tbUser;
+        private System.Windows.Forms.TextBox tbPassword;
         private System.Windows.Forms.LinkLabel forgotLabel;
-        private System.Windows.Forms.Button loginBtn;
+        private System.Windows.Forms.Button btnLogin;
         private System.Windows.Forms.Label registerLabel;
         private System.Windows.Forms.LinkLabel registerLinkLabel;
     }
