@@ -29,11 +29,11 @@
         private void InitializeComponent()
         {
             this.titleLabel = new System.Windows.Forms.Label();
-            this.registerBtn = new System.Windows.Forms.Button();
+            this.btnRegister = new System.Windows.Forms.Button();
             this.backBtn = new System.Windows.Forms.Button();
             this.passwordLabel = new System.Windows.Forms.Label();
-            this.emailTB = new System.Windows.Forms.TextBox();
-            this.passwordTB = new System.Windows.Forms.TextBox();
+            this.txtRegisterEmail = new System.Windows.Forms.TextBox();
+            this.txtRegisterPassword = new System.Windows.Forms.TextBox();
             this.emailLabel = new System.Windows.Forms.Label();
             this.retypeLabel = new System.Windows.Forms.Label();
             this.userLabel = new System.Windows.Forms.Label();
@@ -71,26 +71,27 @@
             this.titleLabel.Text = "Register Information";
             this.titleLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // registerBtn
+            // btnRegister
             // 
-            this.registerBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(111)))), ((int)(((byte)(111)))));
-            this.registerBtn.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.registerBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.registerBtn.Font = new System.Drawing.Font("Yu Gothic UI Semibold", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.registerBtn.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.registerBtn.Location = new System.Drawing.Point(659, 405);
-            this.registerBtn.Name = "registerBtn";
-            this.registerBtn.Size = new System.Drawing.Size(129, 33);
-            this.registerBtn.TabIndex = 10;
-            this.registerBtn.Text = "Register and Login";
-            this.registerBtn.UseVisualStyleBackColor = false;
+            this.btnRegister.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(111)))), ((int)(((byte)(111)))));
+            this.btnRegister.DialogResult = System.Windows.Forms.DialogResult.OK;
+            this.btnRegister.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnRegister.Font = new System.Drawing.Font("Yu Gothic UI Semibold", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnRegister.ForeColor = System.Drawing.SystemColors.ControlLightLight;
+            this.btnRegister.Location = new System.Drawing.Point(659, 405);
+            this.btnRegister.Name = "btnRegister";
+            this.btnRegister.Size = new System.Drawing.Size(129, 33);
+            this.btnRegister.TabIndex = 10;
+            this.btnRegister.Text = "Register and Login";
+            this.btnRegister.UseVisualStyleBackColor = false;
+            this.btnRegister.Click += new System.EventHandler(this.btnRegister_Click);
             // 
             // backBtn
             // 
             this.backBtn.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(111)))), ((int)(((byte)(111)))));
             this.backBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.backBtn.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.backBtn.Location = new System.Drawing.Point(12, 8);
+            this.backBtn.Location = new System.Drawing.Point(-7, 8);
             this.backBtn.Name = "backBtn";
             this.backBtn.Size = new System.Drawing.Size(103, 23);
             this.backBtn.TabIndex = 11;
@@ -107,19 +108,20 @@
             this.passwordLabel.TabIndex = 5;
             this.passwordLabel.Text = "Password";
             // 
-            // emailTB
+            // txtRegisterEmail
             // 
-            this.emailTB.Location = new System.Drawing.Point(6, 182);
-            this.emailTB.Name = "emailTB";
-            this.emailTB.Size = new System.Drawing.Size(244, 20);
-            this.emailTB.TabIndex = 4;
+            this.txtRegisterEmail.Location = new System.Drawing.Point(6, 182);
+            this.txtRegisterEmail.Name = "txtRegisterEmail";
+            this.txtRegisterEmail.Size = new System.Drawing.Size(244, 20);
+            this.txtRegisterEmail.TabIndex = 4;
             // 
-            // passwordTB
+            // txtRegisterPassword
             // 
-            this.passwordTB.Location = new System.Drawing.Point(6, 226);
-            this.passwordTB.Name = "passwordTB";
-            this.passwordTB.Size = new System.Drawing.Size(244, 20);
-            this.passwordTB.TabIndex = 6;
+            this.txtRegisterPassword.Location = new System.Drawing.Point(6, 226);
+            this.txtRegisterPassword.Name = "txtRegisterPassword";
+            this.txtRegisterPassword.Size = new System.Drawing.Size(244, 20);
+            this.txtRegisterPassword.TabIndex = 6;
+            this.txtRegisterPassword.UseSystemPasswordChar = true;
             // 
             // emailLabel
             // 
@@ -154,6 +156,7 @@
             this.retypeTB.Name = "retypeTB";
             this.retypeTB.Size = new System.Drawing.Size(244, 20);
             this.retypeTB.TabIndex = 8;
+            this.retypeTB.UseSystemPasswordChar = true;
             // 
             // userTB
             // 
@@ -317,8 +320,8 @@
             this.registerGB.Controls.Add(this.userLabel);
             this.registerGB.Controls.Add(this.retypeLabel);
             this.registerGB.Controls.Add(this.emailLabel);
-            this.registerGB.Controls.Add(this.passwordTB);
-            this.registerGB.Controls.Add(this.emailTB);
+            this.registerGB.Controls.Add(this.txtRegisterPassword);
+            this.registerGB.Controls.Add(this.txtRegisterEmail);
             this.registerGB.Controls.Add(this.passwordLabel);
             this.registerGB.Location = new System.Drawing.Point(12, 76);
             this.registerGB.Name = "registerGB";
@@ -333,11 +336,13 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.backBtn);
-            this.Controls.Add(this.registerBtn);
+            this.Controls.Add(this.btnRegister);
             this.Controls.Add(this.registerGB);
             this.Controls.Add(this.titleLabel);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "register_form";
             this.Opacity = 0.9D;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "register_form";
             ((System.ComponentModel.ISupportInitialize)(this.avatarBox)).EndInit();
             this.registerGB.ResumeLayout(false);
@@ -350,11 +355,11 @@
         #endregion
 
         private System.Windows.Forms.Label titleLabel;
-        private System.Windows.Forms.Button registerBtn;
+        private System.Windows.Forms.Button btnRegister;
         private System.Windows.Forms.Button backBtn;
         private System.Windows.Forms.Label passwordLabel;
-        private System.Windows.Forms.TextBox emailTB;
-        private System.Windows.Forms.TextBox passwordTB;
+        private System.Windows.Forms.TextBox txtRegisterEmail;
+        private System.Windows.Forms.TextBox txtRegisterPassword;
         private System.Windows.Forms.Label emailLabel;
         private System.Windows.Forms.Label retypeLabel;
         private System.Windows.Forms.Label userLabel;
