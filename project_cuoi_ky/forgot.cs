@@ -41,6 +41,8 @@ namespace project_cuoi_ky
             {
                 MessageBox.Show(result, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 // Có thể ẩn form quên mật khẩu hoặc hiển thị thông báo khác
+                this.DialogResult = DialogResult.OK; // Đặt DialogResult thành OK
+                this.Close(); // Đóng form
             }
         }
 

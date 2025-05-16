@@ -45,6 +45,9 @@ namespace project_cuoi_ky
         {
             string email = tbUser.Text;
             string password = tbPassword.Text;
+            btnLogin.Enabled = false; // Vô hiệu hóa nút đăng nhập trong khi đang xử lý
+            btnLogin.BackColor = Color.Gray; // Thay đổi màu nút để hiển thị trạng thái đang xử lý
+            btnLogin.Text = "Processing..."; // Thay đổi văn bản nút để hiển thị trạng thái đang xử lý
 
             if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
             {
@@ -64,11 +67,30 @@ namespace project_cuoi_ky
             }
             else
             {
-                MessageBox.Show($"Đăng nhập thành công! Token: {result}", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 // Chuyển đến form chính của ứng dụng hoặc thực hiện các hành động khác sau khi đăng nhập thành công
                 this.Hide(); // Ẩn form đăng nhập hiện tại
                 home homeForm = new home();
                 homeForm.Show(); // Hiển thị form chính
+            }
+        }
+
+        private void tbUser_KeyDown(object sender, KeyEventArgs e)
+        {
+            // Kiểm tra nếu phím Enter được nhấn
+            if (e.KeyCode == Keys.Enter)
+            {
+                // Gọi sự kiện nhấn nút đăng nhập
+                btnLogin_Click(sender, e);
+            }
+        }
+
+        private void tbPassword_KeyDown(object sender, KeyEventArgs e)
+        {
+            // Kiểm tra nếu phím Enter được nhấn
+            if (e.KeyCode == Keys.Enter)
+            {
+                // Gọi sự kiện nhấn nút đăng nhập
+                btnLogin_Click(sender, e);
             }
         }
     }

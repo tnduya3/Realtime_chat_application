@@ -87,6 +87,7 @@
             this.tbUser.Name = "tbUser";
             this.tbUser.Size = new System.Drawing.Size(261, 20);
             this.tbUser.TabIndex = 4;
+            this.tbUser.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tbUser_KeyDown);
             // 
             // tbPassword
             // 
@@ -95,6 +96,7 @@
             this.tbPassword.Size = new System.Drawing.Size(261, 20);
             this.tbPassword.TabIndex = 5;
             this.tbPassword.UseSystemPasswordChar = true;
+            this.tbPassword.KeyDown += new System.Windows.Forms.KeyEventHandler(this.tbPassword_KeyDown);
             // 
             // forgotLabel
             // 
