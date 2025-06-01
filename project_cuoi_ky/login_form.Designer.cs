@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(login));
             this.logoBox = new System.Windows.Forms.PictureBox();
             this.titleLabel = new System.Windows.Forms.Label();
             this.userLabel = new System.Windows.Forms.Label();
@@ -43,10 +44,11 @@
             // 
             // logoBox
             // 
-            this.logoBox.Location = new System.Drawing.Point(251, 95);
+            this.logoBox.Image = ((System.Drawing.Image)(resources.GetObject("logoBox.Image")));
+            this.logoBox.Location = new System.Drawing.Point(132, 50);
             this.logoBox.Name = "logoBox";
-            this.logoBox.Size = new System.Drawing.Size(158, 145);
-            this.logoBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+            this.logoBox.Size = new System.Drawing.Size(399, 303);
+            this.logoBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.logoBox.TabIndex = 0;
             this.logoBox.TabStop = false;
             // 
@@ -173,6 +175,7 @@
             this.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "ChatR_Login";
+            this.TransparencyKey = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
             this.WindowState = System.Windows.Forms.FormWindowState.Minimized;
             ((System.ComponentModel.ISupportInitialize)(this.logoBox)).EndInit();
             this.ResumeLayout(false);
