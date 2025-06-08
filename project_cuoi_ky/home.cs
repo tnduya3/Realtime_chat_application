@@ -14,16 +14,16 @@ using System.Windows.Forms;
 namespace project_cuoi_ky
 {
     public partial class home : Form
-    {
+        {
         public home()
         {
             InitializeComponent();
             InitializeSignalR();
+            
             // Đặt các giá trị mặc định vào UI nếu có
             txtCurrentUserId.Text = _currentUserId.ToString();
             txtCurrentChatroomId.Text = _currentChatroomId.ToString();
-            // Đảm bảo Form đóng thì kết nối SignalR cũng đóng
-            this.FormClosing += MainForm_FormClosing;
+        
         }
 
         private HubConnection _hubConnection;
@@ -47,15 +47,12 @@ namespace project_cuoi_ky
                         //logging.AddConsole();
                         //logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Debug); // Sử dụng đầy đủ namespace để tránh lỗi CS0122
                     })
-                    .Build();
-
-                // Đăng ký phương thức nhận tin nhắn từ Hub
+                    .Build();                // Đăng ký phương thức nhận tin nhắn từ Hub
                 _hubConnection.On<int, string, string>("ReceiveMessage", (senderId, senderUsername, content) =>
                 {
                     this.Invoke((MethodInvoker)delegate
                     {
-                        lstMessages.Items.Add($"[{senderUsername}]: {content}");
-                        lstMessages.TopIndex = lstMessages.Items.Count - 1; // Scroll to bottom
+                        AddUserMessage(senderUsername, content);
                     });
                 });
 
@@ -63,7 +60,7 @@ namespace project_cuoi_ky
                 {
                     this.Invoke((MethodInvoker)delegate
                     {
-                        lstMessages.Items.Add("[System]: Connection closed. Reconnecting...");
+                        rtbMessage.AppendText("[System]: Connection closed. Reconnecting...\n");
                     });
                     await Task.Delay(5000);
                     await ConnectToSignalR();
@@ -85,7 +82,7 @@ namespace project_cuoi_ky
                 await _hubConnection.StartAsync();
                 this.Invoke((MethodInvoker)delegate
                 {
-                    lstMessages.Items.Add("[System]: Connected to SignalR Hub.");
+                    rtbMessage.AppendText("[System]: Connected to SignalR Hub.\n");
                     // Sau khi kết nối, tham gia chatroom ngay lập tức
                     JoinChatroom(_currentChatroomId);
                 });
@@ -94,7 +91,7 @@ namespace project_cuoi_ky
             {
                 this.Invoke((MethodInvoker)delegate
                 {
-                    lstMessages.Items.Add($"[System]: Could not connect to SignalR Hub: {ex.Message}");
+                    rtbMessage.AppendText($"[System]: Could not connect to SignalR Hub: {ex.Message}\n");
                 });
                 Console.WriteLine($"SignalR connection error: {ex}");
             }
@@ -109,14 +106,14 @@ namespace project_cuoi_ky
                 await _hubConnection.InvokeAsync("JoinChatroom", chatroomId);
                 this.Invoke((MethodInvoker)delegate
                 {
-                    lstMessages.Items.Add($"[System]: Joined chatroom {chatroomId}.");
+                    rtbMessage.AppendText($"[System]: Joined chatroom {chatroomId}.\n");
                 });
             }
             catch (Exception ex)
             {
                 this.Invoke((MethodInvoker)delegate
                 {
-                    lstMessages.Items.Add($"[System]: Failed to join chatroom {chatroomId}: {ex.Message}");
+                    rtbMessage.AppendText($"[System]: Failed to join chatroom {chatroomId}: {ex.Message}\n");
                 });
                 Console.WriteLine($"Error joining chatroom: {ex}");
             }
@@ -187,7 +184,7 @@ namespace project_cuoi_ky
                     {
                         this.Invoke((MethodInvoker)delegate
                         {
-                            lstMessages.Items.Add("[System]: Message sent via API successfully.");
+                            rtbMessage.AppendText("[System]: Message sent via API successfully.\n");
                         });
                     }
                     else
@@ -195,7 +192,7 @@ namespace project_cuoi_ky
                         string errorResponse = await response.Content.ReadAsStringAsync();
                         this.Invoke((MethodInvoker)delegate
                         {
-                            lstMessages.Items.Add($"[System]: Failed to send message via API: {response.StatusCode} - {errorResponse}");
+                            rtbMessage.AppendText($"[System]: Failed to send message via API: {response.StatusCode} - {errorResponse}\n");
                         });
                         Console.WriteLine($"API send message error: {response.StatusCode} - {errorResponse}");
                     }
@@ -204,7 +201,7 @@ namespace project_cuoi_ky
                 {
                     this.Invoke((MethodInvoker)delegate
                     {
-                        lstMessages.Items.Add($"[System]: Error sending message via API: {ex.Message}");
+                        rtbMessage.AppendText($"[System]: Error sending message via API: {ex.Message}\n");
                     });
                     Console.WriteLine($"API send message exception: {ex}");
                 }
@@ -246,12 +243,12 @@ namespace project_cuoi_ky
 
                         this.Invoke((MethodInvoker)delegate
                         {
-                            lstMessages.Items.Clear(); // Xóa tin nhắn cũ nếu có
+                            rtbMessage.Clear(); // Xóa tin nhắn cũ nếu có
                             foreach (var msg in messages)
                             {
-                                lstMessages.Items.Add($"[{msg.SenderUsername}]: {msg.Content}");
+                                rtbMessage.AppendText($"[{msg.SenderUsername}]: {msg.Content}\n");
                             }
-                            lstMessages.TopIndex = lstMessages.Items.Count - 1;
+                            rtbMessage.ScrollToCaret(); // Scroll to bottom
                         });
                     }
                     else
@@ -259,7 +256,7 @@ namespace project_cuoi_ky
                         string errorResponse = await response.Content.ReadAsStringAsync();
                         this.Invoke((MethodInvoker)delegate
                         {
-                            lstMessages.Items.Add($"[System]: Failed to load chatroom messages: {response.StatusCode} - {errorResponse}");
+                            rtbMessage.AppendText($"[System]: Failed to load chatroom messages: {response.StatusCode} - {errorResponse}\n");
                         });
                         Console.WriteLine($"API load messages error: {response.StatusCode} - {errorResponse}");
                     }
@@ -268,14 +265,12 @@ namespace project_cuoi_ky
                 {
                     this.Invoke((MethodInvoker)delegate
                     {
-                        lstMessages.Items.Add($"[System]: Error loading chatroom messages: {ex.Message}");
+                        rtbMessage.AppendText($"[System]: Error loading chatroom messages: {ex.Message}\n");
                     });
                     Console.WriteLine($"API load messages exception: {ex}");
                 }
             }
-        }
-
-        // DTO để ánh xạ dữ liệu tin nhắn từ API
+        }        // DTO để ánh xạ dữ liệu tin nhắn từ API
         // Bạn cần đảm bảo các thuộc tính khớp với JSON trả về từ API của bạn
         public class ChatMessageDisplay
         {
@@ -285,6 +280,34 @@ namespace project_cuoi_ky
             public int ChatroomId { get; set; }
             public string Content { get; set; }
             public DateTime CreatedAt { get; set; }
+        }
+
+        // Phương thức trợ giúp để thêm tin nhắn vào RichTextBox với định dạng đẹp
+        private void AddMessageToRichTextBox(string message, Color color = default)
+        {
+            if (color == default)
+                color = Color.Black;
+
+            rtbMessage.SelectionStart = rtbMessage.TextLength;
+            rtbMessage.SelectionLength = 0;
+            rtbMessage.SelectionColor = color;
+            rtbMessage.AppendText(message + "\n");
+            rtbMessage.SelectionColor = rtbMessage.ForeColor; // Reset color
+            rtbMessage.ScrollToCaret();
+        }
+
+        // Phương thức để thêm tin nhắn hệ thống với màu khác
+        private void AddSystemMessage(string message)
+        {
+            AddMessageToRichTextBox($"[System]: {message}", Color.Gray);
+        }
+
+        // Phương thức để thêm tin nhắn người dùng với timestamp
+        private void AddUserMessage(string username, string content, DateTime? timestamp = null)
+        {
+            string timeStr = timestamp?.ToString("HH:mm") ?? DateTime.Now.ToString("HH:mm");
+            string formattedMessage = $"[{timeStr}] {username}: {content}";
+            AddMessageToRichTextBox(formattedMessage, username == "System" ? Color.Gray : Color.Black);
         }
     }
 }
