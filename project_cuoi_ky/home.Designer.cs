@@ -37,7 +37,7 @@
             this.userStatusLabel = new System.Windows.Forms.Label();
             this.txtCurrentUserId = new System.Windows.Forms.Label();
             this.userProfilePicture = new System.Windows.Forms.PictureBox();
-            this.lstMessages = new System.Windows.Forms.ListBox();
+            this.rtbMessage = new System.Windows.Forms.RichTextBox();
             this.txtCurrentChatroomId = new System.Windows.Forms.TextBox();
             this.userStatusPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.userProfilePicture)).BeginInit();
@@ -47,7 +47,7 @@
             // 
             this.btnSendMessage.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(111)))), ((int)(((byte)(111)))));
             this.btnSendMessage.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnSendMessage.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnSendMessage.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnSendMessage.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
             this.btnSendMessage.Location = new System.Drawing.Point(502, 415);
             this.btnSendMessage.Name = "btnSendMessage";
@@ -60,7 +60,7 @@
             // txtMessageInput
             // 
             this.txtMessageInput.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.txtMessageInput.Font = new System.Drawing.Font("Yu Gothic UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtMessageInput.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtMessageInput.Location = new System.Drawing.Point(226, 415);
             this.txtMessageInput.Multiline = true;
             this.txtMessageInput.Name = "txtMessageInput";
@@ -145,13 +145,18 @@
             this.userProfilePicture.TabIndex = 0;
             this.userProfilePicture.TabStop = false;
             // 
-            // lstMessages
+            // rtbMessage
             // 
-            this.lstMessages.FormattingEnabled = true;
-            this.lstMessages.Location = new System.Drawing.Point(230, 40);
-            this.lstMessages.Name = "lstMessages";
-            this.lstMessages.Size = new System.Drawing.Size(347, 368);
-            this.lstMessages.TabIndex = 7;
+            this.rtbMessage.BackColor = System.Drawing.Color.White;
+            this.rtbMessage.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.rtbMessage.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.rtbMessage.Location = new System.Drawing.Point(230, 40);
+            this.rtbMessage.Name = "rtbMessage";
+            this.rtbMessage.ReadOnly = true;
+            this.rtbMessage.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
+            this.rtbMessage.Size = new System.Drawing.Size(347, 368);
+            this.rtbMessage.TabIndex = 7;
+            this.rtbMessage.Text = "";
             // 
             // txtCurrentChatroomId
             // 
@@ -167,7 +172,7 @@
             this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(589, 450);
             this.Controls.Add(this.txtCurrentChatroomId);
-            this.Controls.Add(this.lstMessages);
+            this.Controls.Add(this.rtbMessage);
             this.Controls.Add(this.userStatusPanel);
             this.Controls.Add(this.contactsLabel);
             this.Controls.Add(this.chatTitleLabel);
@@ -179,6 +184,7 @@
             this.Opacity = 0.9D;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Chat4 - Home";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.userStatusPanel.ResumeLayout(false);
             this.userStatusPanel.PerformLayout();
@@ -199,7 +205,7 @@
         private System.Windows.Forms.Label userStatusLabel;
         private System.Windows.Forms.Label txtCurrentUserId;
         private System.Windows.Forms.PictureBox userProfilePicture;
-        private System.Windows.Forms.ListBox lstMessages;
+        private System.Windows.Forms.RichTextBox rtbMessage;
         private System.Windows.Forms.TextBox txtCurrentChatroomId;
     }
 }
