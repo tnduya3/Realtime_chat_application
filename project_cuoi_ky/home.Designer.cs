@@ -37,8 +37,8 @@
             this.userStatusLabel = new System.Windows.Forms.Label();
             this.txtCurrentUserId = new System.Windows.Forms.Label();
             this.userProfilePicture = new System.Windows.Forms.PictureBox();
-            this.rtbMessage = new System.Windows.Forms.RichTextBox();
             this.txtCurrentChatroomId = new System.Windows.Forms.TextBox();
+            this.pnlChatMessages = new System.Windows.Forms.FlowLayoutPanel();
             this.userStatusPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.userProfilePicture)).BeginInit();
             this.SuspendLayout();
@@ -145,19 +145,6 @@
             this.userProfilePicture.TabIndex = 0;
             this.userProfilePicture.TabStop = false;
             // 
-            // rtbMessage
-            // 
-            this.rtbMessage.BackColor = System.Drawing.Color.White;
-            this.rtbMessage.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.rtbMessage.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.rtbMessage.Location = new System.Drawing.Point(230, 40);
-            this.rtbMessage.Name = "rtbMessage";
-            this.rtbMessage.ReadOnly = true;
-            this.rtbMessage.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
-            this.rtbMessage.Size = new System.Drawing.Size(347, 368);
-            this.rtbMessage.TabIndex = 7;
-            this.rtbMessage.Text = "";
-            // 
             // txtCurrentChatroomId
             // 
             this.txtCurrentChatroomId.Location = new System.Drawing.Point(340, 13);
@@ -165,14 +152,26 @@
             this.txtCurrentChatroomId.Size = new System.Drawing.Size(100, 20);
             this.txtCurrentChatroomId.TabIndex = 8;
             // 
+            // pnlChatMessages
+            // 
+            this.pnlChatMessages.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnlChatMessages.AutoScroll = true;
+            this.pnlChatMessages.BackColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.pnlChatMessages.Location = new System.Drawing.Point(230, 40);
+            this.pnlChatMessages.Name = "pnlChatMessages";
+            this.pnlChatMessages.Size = new System.Drawing.Size(347, 369);
+            this.pnlChatMessages.TabIndex = 9;
+            // 
             // home
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(589, 450);
+            this.Controls.Add(this.pnlChatMessages);
             this.Controls.Add(this.txtCurrentChatroomId);
-            this.Controls.Add(this.rtbMessage);
             this.Controls.Add(this.userStatusPanel);
             this.Controls.Add(this.contactsLabel);
             this.Controls.Add(this.chatTitleLabel);
@@ -205,7 +204,7 @@
         private System.Windows.Forms.Label userStatusLabel;
         private System.Windows.Forms.Label txtCurrentUserId;
         private System.Windows.Forms.PictureBox userProfilePicture;
-        private System.Windows.Forms.RichTextBox rtbMessage;
         private System.Windows.Forms.TextBox txtCurrentChatroomId;
+        private System.Windows.Forms.FlowLayoutPanel pnlChatMessages;
     }
 }
