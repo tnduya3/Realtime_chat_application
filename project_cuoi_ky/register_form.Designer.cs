@@ -39,23 +39,7 @@
             this.userLabel = new System.Windows.Forms.Label();
             this.retypeTB = new System.Windows.Forms.TextBox();
             this.userTB = new System.Windows.Forms.TextBox();
-            this.genderLabel = new System.Windows.Forms.Label();
-            this.maleBtn = new System.Windows.Forms.RadioButton();
-            this.femaleBtn = new System.Windows.Forms.RadioButton();
-            this.otherBtn = new System.Windows.Forms.RadioButton();
-            this.birthdayLabel = new System.Windows.Forms.Label();
-            this.birthdayPicker = new System.Windows.Forms.DateTimePicker();
-            this.phoneLabel = new System.Windows.Forms.Label();
-            this.phoneTB = new System.Windows.Forms.TextBox();
-            this.cityLabel = new System.Windows.Forms.Label();
-            this.addressLabel = new System.Windows.Forms.Label();
-            this.cityTB = new System.Windows.Forms.ComboBox();
-            this.addressTB = new System.Windows.Forms.TextBox();
-            this.avatarBox = new System.Windows.Forms.PictureBox();
-            this.fileBtn = new System.Windows.Forms.Button();
-            this.avatarLabel = new System.Windows.Forms.Label();
             this.registerGB = new System.Windows.Forms.GroupBox();
-            ((System.ComponentModel.ISupportInitialize)(this.avatarBox)).BeginInit();
             this.registerGB.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -102,7 +86,7 @@
             // passwordLabel
             // 
             this.passwordLabel.AutoSize = true;
-            this.passwordLabel.Location = new System.Drawing.Point(6, 209);
+            this.passwordLabel.Location = new System.Drawing.Point(243, 155);
             this.passwordLabel.Name = "passwordLabel";
             this.passwordLabel.Size = new System.Drawing.Size(53, 13);
             this.passwordLabel.TabIndex = 5;
@@ -110,14 +94,14 @@
             // 
             // txtRegisterEmail
             // 
-            this.txtRegisterEmail.Location = new System.Drawing.Point(6, 182);
+            this.txtRegisterEmail.Location = new System.Drawing.Point(243, 128);
             this.txtRegisterEmail.Name = "txtRegisterEmail";
             this.txtRegisterEmail.Size = new System.Drawing.Size(244, 20);
             this.txtRegisterEmail.TabIndex = 4;
             // 
             // txtRegisterPassword
             // 
-            this.txtRegisterPassword.Location = new System.Drawing.Point(6, 226);
+            this.txtRegisterPassword.Location = new System.Drawing.Point(243, 172);
             this.txtRegisterPassword.Name = "txtRegisterPassword";
             this.txtRegisterPassword.Size = new System.Drawing.Size(244, 20);
             this.txtRegisterPassword.TabIndex = 6;
@@ -126,7 +110,7 @@
             // emailLabel
             // 
             this.emailLabel.AutoSize = true;
-            this.emailLabel.Location = new System.Drawing.Point(6, 165);
+            this.emailLabel.Location = new System.Drawing.Point(243, 111);
             this.emailLabel.Name = "emailLabel";
             this.emailLabel.Size = new System.Drawing.Size(32, 13);
             this.emailLabel.TabIndex = 3;
@@ -135,7 +119,7 @@
             // retypeLabel
             // 
             this.retypeLabel.AutoSize = true;
-            this.retypeLabel.Location = new System.Drawing.Point(6, 253);
+            this.retypeLabel.Location = new System.Drawing.Point(243, 199);
             this.retypeLabel.Name = "retypeLabel";
             this.retypeLabel.Size = new System.Drawing.Size(112, 13);
             this.retypeLabel.TabIndex = 7;
@@ -144,7 +128,7 @@
             // userLabel
             // 
             this.userLabel.AutoSize = true;
-            this.userLabel.Location = new System.Drawing.Point(6, 122);
+            this.userLabel.Location = new System.Drawing.Point(243, 68);
             this.userLabel.Name = "userLabel";
             this.userLabel.Size = new System.Drawing.Size(60, 13);
             this.userLabel.TabIndex = 1;
@@ -152,7 +136,7 @@
             // 
             // retypeTB
             // 
-            this.retypeTB.Location = new System.Drawing.Point(6, 270);
+            this.retypeTB.Location = new System.Drawing.Point(243, 216);
             this.retypeTB.Name = "retypeTB";
             this.retypeTB.Size = new System.Drawing.Size(244, 20);
             this.retypeTB.TabIndex = 8;
@@ -160,161 +144,13 @@
             // 
             // userTB
             // 
-            this.userTB.Location = new System.Drawing.Point(6, 138);
+            this.userTB.Location = new System.Drawing.Point(243, 84);
             this.userTB.Name = "userTB";
             this.userTB.Size = new System.Drawing.Size(244, 20);
             this.userTB.TabIndex = 2;
             // 
-            // genderLabel
-            // 
-            this.genderLabel.AutoSize = true;
-            this.genderLabel.Location = new System.Drawing.Point(421, 122);
-            this.genderLabel.Name = "genderLabel";
-            this.genderLabel.Size = new System.Drawing.Size(42, 13);
-            this.genderLabel.TabIndex = 9;
-            this.genderLabel.Text = "Gender";
-            // 
-            // maleBtn
-            // 
-            this.maleBtn.AutoSize = true;
-            this.maleBtn.Location = new System.Drawing.Point(465, 141);
-            this.maleBtn.Name = "maleBtn";
-            this.maleBtn.Size = new System.Drawing.Size(48, 17);
-            this.maleBtn.TabIndex = 10;
-            this.maleBtn.TabStop = true;
-            this.maleBtn.Text = "Male";
-            this.maleBtn.UseVisualStyleBackColor = true;
-            // 
-            // femaleBtn
-            // 
-            this.femaleBtn.AutoSize = true;
-            this.femaleBtn.Location = new System.Drawing.Point(556, 141);
-            this.femaleBtn.Name = "femaleBtn";
-            this.femaleBtn.Size = new System.Drawing.Size(59, 17);
-            this.femaleBtn.TabIndex = 11;
-            this.femaleBtn.TabStop = true;
-            this.femaleBtn.Text = "Female";
-            this.femaleBtn.UseVisualStyleBackColor = true;
-            // 
-            // otherBtn
-            // 
-            this.otherBtn.AutoSize = true;
-            this.otherBtn.Location = new System.Drawing.Point(647, 139);
-            this.otherBtn.Name = "otherBtn";
-            this.otherBtn.Size = new System.Drawing.Size(60, 17);
-            this.otherBtn.TabIndex = 12;
-            this.otherBtn.TabStop = true;
-            this.otherBtn.Text = "Other...";
-            this.otherBtn.UseVisualStyleBackColor = true;
-            // 
-            // birthdayLabel
-            // 
-            this.birthdayLabel.AutoSize = true;
-            this.birthdayLabel.Location = new System.Drawing.Point(424, 165);
-            this.birthdayLabel.Name = "birthdayLabel";
-            this.birthdayLabel.Size = new System.Drawing.Size(45, 13);
-            this.birthdayLabel.TabIndex = 13;
-            this.birthdayLabel.Text = "Birthday";
-            // 
-            // birthdayPicker
-            // 
-            this.birthdayPicker.Location = new System.Drawing.Point(427, 181);
-            this.birthdayPicker.Name = "birthdayPicker";
-            this.birthdayPicker.Size = new System.Drawing.Size(238, 20);
-            this.birthdayPicker.TabIndex = 14;
-            // 
-            // phoneLabel
-            // 
-            this.phoneLabel.AutoSize = true;
-            this.phoneLabel.Location = new System.Drawing.Point(424, 209);
-            this.phoneLabel.Name = "phoneLabel";
-            this.phoneLabel.Size = new System.Drawing.Size(38, 13);
-            this.phoneLabel.TabIndex = 15;
-            this.phoneLabel.Text = "Phone";
-            // 
-            // phoneTB
-            // 
-            this.phoneTB.Location = new System.Drawing.Point(424, 226);
-            this.phoneTB.Name = "phoneTB";
-            this.phoneTB.Size = new System.Drawing.Size(241, 20);
-            this.phoneTB.TabIndex = 16;
-            // 
-            // cityLabel
-            // 
-            this.cityLabel.AutoSize = true;
-            this.cityLabel.Location = new System.Drawing.Point(424, 253);
-            this.cityLabel.Name = "cityLabel";
-            this.cityLabel.Size = new System.Drawing.Size(24, 13);
-            this.cityLabel.TabIndex = 17;
-            this.cityLabel.Text = "City";
-            // 
-            // addressLabel
-            // 
-            this.addressLabel.AutoSize = true;
-            this.addressLabel.Location = new System.Drawing.Point(557, 253);
-            this.addressLabel.Name = "addressLabel";
-            this.addressLabel.Size = new System.Drawing.Size(45, 13);
-            this.addressLabel.TabIndex = 19;
-            this.addressLabel.Text = "Address";
-            // 
-            // cityTB
-            // 
-            this.cityTB.FormattingEnabled = true;
-            this.cityTB.Location = new System.Drawing.Point(424, 268);
-            this.cityTB.Name = "cityTB";
-            this.cityTB.Size = new System.Drawing.Size(121, 21);
-            this.cityTB.TabIndex = 20;
-            // 
-            // addressTB
-            // 
-            this.addressTB.Location = new System.Drawing.Point(552, 269);
-            this.addressTB.Name = "addressTB";
-            this.addressTB.Size = new System.Drawing.Size(180, 20);
-            this.addressTB.TabIndex = 21;
-            // 
-            // avatarBox
-            // 
-            this.avatarBox.Location = new System.Drawing.Point(9, 19);
-            this.avatarBox.Name = "avatarBox";
-            this.avatarBox.Size = new System.Drawing.Size(105, 84);
-            this.avatarBox.TabIndex = 22;
-            this.avatarBox.TabStop = false;
-            // 
-            // fileBtn
-            // 
-            this.fileBtn.Location = new System.Drawing.Point(120, 80);
-            this.fileBtn.Name = "fileBtn";
-            this.fileBtn.Size = new System.Drawing.Size(75, 23);
-            this.fileBtn.TabIndex = 23;
-            this.fileBtn.Text = "Upload File";
-            this.fileBtn.UseVisualStyleBackColor = true;
-            // 
-            // avatarLabel
-            // 
-            this.avatarLabel.AutoSize = true;
-            this.avatarLabel.Location = new System.Drawing.Point(121, 61);
-            this.avatarLabel.Name = "avatarLabel";
-            this.avatarLabel.Size = new System.Drawing.Size(97, 13);
-            this.avatarLabel.TabIndex = 25;
-            this.avatarLabel.Text = "Choose your image";
-            // 
             // registerGB
             // 
-            this.registerGB.Controls.Add(this.avatarLabel);
-            this.registerGB.Controls.Add(this.fileBtn);
-            this.registerGB.Controls.Add(this.avatarBox);
-            this.registerGB.Controls.Add(this.addressTB);
-            this.registerGB.Controls.Add(this.cityTB);
-            this.registerGB.Controls.Add(this.addressLabel);
-            this.registerGB.Controls.Add(this.cityLabel);
-            this.registerGB.Controls.Add(this.phoneTB);
-            this.registerGB.Controls.Add(this.phoneLabel);
-            this.registerGB.Controls.Add(this.birthdayPicker);
-            this.registerGB.Controls.Add(this.birthdayLabel);
-            this.registerGB.Controls.Add(this.otherBtn);
-            this.registerGB.Controls.Add(this.femaleBtn);
-            this.registerGB.Controls.Add(this.maleBtn);
-            this.registerGB.Controls.Add(this.genderLabel);
             this.registerGB.Controls.Add(this.userTB);
             this.registerGB.Controls.Add(this.retypeTB);
             this.registerGB.Controls.Add(this.userLabel);
@@ -344,7 +180,6 @@
             this.Opacity = 0.9D;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "register_form";
-            ((System.ComponentModel.ISupportInitialize)(this.avatarBox)).EndInit();
             this.registerGB.ResumeLayout(false);
             this.registerGB.PerformLayout();
             this.ResumeLayout(false);
@@ -365,21 +200,6 @@
         private System.Windows.Forms.Label userLabel;
         private System.Windows.Forms.TextBox retypeTB;
         private System.Windows.Forms.TextBox userTB;
-        private System.Windows.Forms.Label genderLabel;
-        private System.Windows.Forms.RadioButton maleBtn;
-        private System.Windows.Forms.RadioButton femaleBtn;
-        private System.Windows.Forms.RadioButton otherBtn;
-        private System.Windows.Forms.Label birthdayLabel;
-        private System.Windows.Forms.DateTimePicker birthdayPicker;
-        private System.Windows.Forms.Label phoneLabel;
-        private System.Windows.Forms.TextBox phoneTB;
-        private System.Windows.Forms.Label cityLabel;
-        private System.Windows.Forms.Label addressLabel;
-        private System.Windows.Forms.ComboBox cityTB;
-        private System.Windows.Forms.TextBox addressTB;
-        private System.Windows.Forms.PictureBox avatarBox;
-        private System.Windows.Forms.Button fileBtn;
-        private System.Windows.Forms.Label avatarLabel;
         private System.Windows.Forms.GroupBox registerGB;
     }
 }
