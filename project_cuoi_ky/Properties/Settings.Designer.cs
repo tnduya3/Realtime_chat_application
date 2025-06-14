@@ -26,5 +26,138 @@ namespace project_cuoi_ky.Properties
                 return defaultInstance;
             }
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string AccessToken
+        {
+            get
+            {
+                return ((string)(this["AccessToken"]));
+            }
+            set
+            {
+                this["AccessToken"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string RefreshToken
+        {
+            get
+            {
+                return ((string)(this["RefreshToken"]));
+            }
+            set
+            {
+                this["RefreshToken"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string UserId
+        {
+            get
+            {
+                return ((string)(this["UserId"]));
+            }
+            set
+            {
+                this["UserId"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string UserEmail
+        {
+            get
+            {
+                return ((string)(this["UserEmail"]));
+            }
+            set
+            {
+                this["UserEmail"] = value;
+            }
+        }        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool IsLoggedIn
+        {
+            get
+            {
+                return ((bool)(this["IsLoggedIn"]));
+            }
+            set
+            {
+                this["IsLoggedIn"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string DisplayName
+        {
+            get
+            {
+                return ((string)(this["DisplayName"]));
+            }
+            set
+            {
+                this["DisplayName"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool EmailVerified
+        {
+            get
+            {
+                return ((bool)(this["EmailVerified"]));
+            }
+            set
+            {
+                this["EmailVerified"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string CreatedAt
+        {
+            get
+            {
+                return ((string)(this["CreatedAt"]));
+            }
+            set
+            {
+                this["CreatedAt"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string LastSignInAt
+        {
+            get
+            {
+                return ((string)(this["LastSignInAt"]));
+            }
+            set
+            {
+                this["LastSignInAt"] = value;
+            }
+        }
     }
 }

@@ -16,7 +16,7 @@ namespace project_cuoi_ky
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new home());
+            Application.Run(new login());
         }
     }
 }

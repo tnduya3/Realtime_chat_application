@@ -11,388 +11,392 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using project_cuoi_ky.Services;
 
 namespace project_cuoi_ky
 {
     public partial class home : Form
-        {
+    {
+        private const string SignalRHubUrl = "https://localhost:7092/chathub";
+        private const string ApiBaseUrl = "https://localhost:7092/api/";
+
+        // Services
+        private SignalRService _signalRService;
+        private ApiService _apiService;
+        private ChatroomManager _chatroomManager;
+        private MessageManager _messageManager;
+
+        // User ID và Chatroom ID hiện tại
+        private int _currentUserId = 1;
+        private int _currentChatroomId = 1;
+        
         public home()
         {
             InitializeComponent();
-            InitializeSignalR();
             
-            // Đặt các giá trị mặc định vào UI nếu có
-            txtCurrentUserId.Text = _currentUserId.ToString();
+            // Load thông tin user từ Properties.Settings
+            LoadUserInfoFromSettings();
+            
+            // Initialize services
+            InitializeServices();
+            
+            // Đặt các giá trị vào UI
+            UpdateUserDisplayInfo();
             txtCurrentChatroomId.Text = _currentChatroomId.ToString();
             this.FormClosing += MainForm_FormClosing;
 
-            pnlChatMessages.FlowDirection = FlowDirection.TopDown;
-            pnlChatMessages.WrapContents = false; // Quan trọng: Ngăn không cho các control xuống dòng nếu không đủ chỗ ngang
-            pnlChatMessages.AutoScroll = true; // Cho phép cuộn khi nội dung vượt quá kích thước panel
-            pnlChatMessages.VerticalScroll.Visible = true; // Đảm bảo thanh cuộn luôn hiển thị nếu muốn
-
+            // Load chatrooms
+            LoadChatrooms();
+        }        
+        
+        private void InitializeServices()
+        {
+            // Initialize API service
+            _apiService = new ApiService(ApiBaseUrl);
+            
+            // Initialize SignalR service
+            _signalRService = new SignalRService(SignalRHubUrl);
+            _signalRService.MessageReceived += OnSignalRMessageReceived;
+            _signalRService.NotificationReceived += OnSignalRNotificationReceived;
+            _signalRService.UserJoinedChatroom += OnUserJoinedChatroom;
+            _signalRService.UserLeftChatroom += OnUserLeftChatroom;
+            _signalRService.ConnectionStatusChanged += OnConnectionStatusChanged;
+            
+            // Initialize chatroom manager
+            _chatroomManager = new ChatroomManager(pnlChatroomList);
+            _chatroomManager.ChatroomSelected += OnChatroomSelected;
+            _chatroomManager.StatusChanged += OnChatroomManagerStatusChanged;
+            
+            // Initialize message manager
+            _messageManager = new MessageManager(pnlChatMessages, _currentUserId);
+            _messageManager.StatusChanged += OnMessageManagerStatusChanged;
+            
+            // Start SignalR connection
+            _ = Task.Run(async () => await _signalRService.InitializeAsync());
         }
 
-        private string GetSignalRHubUrlWithUserId()
+        // SignalR Event Handlers
+        private void OnSignalRMessageReceived(MessageDisplayData messageData)
         {
-            int userId = 1;
-            if (int.TryParse(txtCurrentUserId.Text, out int parsedId))
+            this.Invoke((MethodInvoker)delegate
             {
-                userId = parsedId;
-            }
-            return $"{SignalRHubUrl}?userId={userId}";
+                _messageManager.AddMessageToDisplay(messageData.SenderName, messageData.content, messageData.createdAt, messageData.senderId != _currentUserId);
+            });
         }
 
-        private HubConnection _hubConnection;
-        private const string SignalRHubUrl = "https://localhost:7092/chathub"; // URL của SignalR Hub trên server
-        private const string ApiBaseUrl = "https://localhost:7092/api/"; // Base URL cho các API RESTful
-
-        // User ID và Chatroom ID hiện tại (sẽ được chọn hoặc đăng nhập)
-        private int _currentUserId = 1; // Giả sử User ID mặc định là 1 để test
-        private int _currentChatroomId = 1; // Giả sử Chatroom ID mặc định là 1 để test
-
-        private async void InitializeSignalR()
+        private void OnSignalRNotificationReceived(string type, string title, string body)
         {
-            try
+            this.Invoke((MethodInvoker)delegate
             {
-                // Khởi tạo HubConnection
-                _hubConnection = new HubConnectionBuilder()
-                    .WithUrl(SignalRHubUrl)
-                    .ConfigureLogging(logging =>
-                    {
-                        //// Sử dụng phương thức AddConsole để thêm console logger
-                        //logging.AddConsole();
-                        //logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Debug); // Sử dụng đầy đủ namespace để tránh lỗi CS0122
-                    })
-                    .Build();
-                // Đăng ký phương thức nhận tin nhắn từ Hub
-                _hubConnection.On<MessageDisplayData>("ReceiveMessage", (messageData) => // Nhận một đối tượng dữ liệu tin nhắn
+                MessageBox.Show(body, title, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            });
+        }
+
+        private void OnUserJoinedChatroom(string userId, string username, string chatroomId, string joinedAt)
+        {
+            this.Invoke((MethodInvoker)delegate
+            {
+                _messageManager.AddSystemMessage($"User joined chatroom: {username} (User ID: {userId}, Chatroom ID: {chatroomId}, Joined At: {joinedAt})");
+            });
+        }
+
+        private void OnUserLeftChatroom(string userId, string username, string chatroomId, string leftAt)
+        {
+            this.Invoke((MethodInvoker)delegate
+            {
+                _messageManager.AddSystemMessage($"User left chatroom: {username}");
+            });
+        }
+
+        private void OnConnectionStatusChanged(string status)
+        {
+            this.Invoke((MethodInvoker)delegate
+            {
+                _messageManager.AddSystemMessage(status);
+                
+                // Auto register user and join chatroom when connected
+                if (status.Contains("Connected to SignalR Hub"))
                 {
-                    this.Invoke((MethodInvoker)delegate
+                    _ = Task.Run(async () =>
                     {
-                        // Gọi phương thức để thêm bong bóng tin nhắn vào display
-                        AddMessageToDisplay(messageData.SenderUsername, messageData.Content, messageData.createdAt, messageData.senderId != _currentUserId);
+                        await _signalRService.RegisterUserAsync(_currentUserId);
+                        if (_currentChatroomId > 0)
+                        {
+                            await _signalRService.JoinChatroomAsync(_currentChatroomId, _currentUserId);
+                        }
                     });
-                });
-                // Trong MainForm.cs, trong InitializeSignalR()
-                _hubConnection.On<string, string, string>("ReceiveNotification", (type, title, body) =>
-                {
-                    this.Invoke((MethodInvoker)delegate
-                    {
-                        // Hiển thị thông báo bằng MessageBox hoặc một UI thông báo tùy chỉnh
-                        MessageBox.Show(body, title, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    });
-                });
-
-                _hubConnection.Closed += async (error) =>
-                {
-                    this.Invoke((MethodInvoker)delegate
-                    {
-                        AddSystemMessage("Connection closed. Reconnecting...");
-                    });
-                    await Task.Delay(5000);
-                    await ConnectToSignalR();
-                };
-
-                await ConnectToSignalR();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error initializing SignalR: {ex.Message}", "SignalR Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                Console.WriteLine($"SignalR initialization error: {ex}");
-            }
+                }
+            });
         }
 
-        private async Task ConnectToSignalR()
+        // Chatroom Manager Event Handlers
+        private void OnChatroomSelected(int chatroomId)
         {
-            try
+            _currentChatroomId = chatroomId;
+            txtCurrentChatroomId.Text = _currentChatroomId.ToString();
+            
+            var selectedChatroom = _chatroomManager.GetChatroomById(chatroomId);
+            if (selectedChatroom != null)
             {
-                await _hubConnection.StartAsync();
-                this.Invoke((MethodInvoker)delegate
-                {
-                    AddSystemMessage("Connected to SignalR Hub.");
-                    _currentUserId = int.Parse(txtCurrentUserId.Text);
-                    _hubConnection.InvokeAsync("RegisterUser", _currentUserId);
-                    JoinChatroom(_currentChatroomId);
-                });
+                chatTitleLabel.Text = selectedChatroom.Name;
             }
-            catch (Exception ex)
-            {
-                this.Invoke((MethodInvoker)delegate
-                {
-                    AddSystemMessage($"Could not connect to SignalR Hub: {ex.Message}");
-                });
-                Console.WriteLine($"SignalR connection error: {ex}");
-            }
+            
+            // Clear messages and load new ones
+            _messageManager.ClearMessages();
+            
+            // Join chatroom via SignalR
+            _ = Task.Run(async () => await _signalRService.JoinChatroomAsync(_currentChatroomId, _currentUserId));
+            
+            // Load messages
+            LoadMessagesForChatroom(_currentChatroomId);
         }
 
-        private async void JoinChatroom(int chatroomId)
+        private void OnChatroomManagerStatusChanged(string status)
         {
-            try
-            {
-                await _hubConnection.InvokeAsync("JoinChatroom", _currentChatroomId.ToString(), _currentUserId.ToString());
-                this.Invoke((MethodInvoker)delegate
-                {
-                    AddSystemMessage($"Joined chatroom {chatroomId}.");
-                });
-            }
-            catch (Exception ex)
-            {
-                this.Invoke((MethodInvoker)delegate
-                {
-                    AddSystemMessage($"Failed to join chatroom {chatroomId}: {ex.Message}");
-                });
-                Console.WriteLine($"Error joining chatroom: {ex}");
-            }
+            _messageManager.AddSystemMessage(status);
         }
 
-        // Event handler cho nút Gửi tin nhắn
+        private void OnMessageManagerStatusChanged(string status)
+        {
+            // Could log to console or show in status bar
+            Console.WriteLine($"MessageManager: {status}");
+        }// Enhanced event handler for sending messages with better validation
         private async void btnSendMessage_Click(object sender, EventArgs e)
         {
-            // Cập nhật User ID và Chatroom ID từ UI
-            if (int.TryParse(txtCurrentUserId.Text, out int userId))
+            try
             {
-                _currentUserId = userId;
-            }
-            if (int.TryParse(txtCurrentChatroomId.Text, out int chatroomId))
-            {
-                _currentChatroomId = chatroomId;
-            }
+                string messageContent = txtMessageInput.Text.Trim();
+                if (string.IsNullOrEmpty(messageContent))
+                {
+                    MessageBox.Show("Please enter a message.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
 
-            string messageContent = txtMessageInput.Text.Trim();
-            if (string.IsNullOrEmpty(messageContent))
-            {
-                MessageBox.Show("Please enter a message.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
+                // Validate message length
+                if (messageContent.Length > 1000)
+                {
+                    MessageBox.Show("Message is too long. Please keep it under 1000 characters.", "Message Too Long", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
 
-            if (_hubConnection.State == HubConnectionState.Connected)
-            {
+                // Validate chatroom selection
+                if (_currentChatroomId <= 0)
+                {
+                    MessageBox.Show("Please select a chatroom first.", "No Chatroom Selected", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
                 try
                 {
-                    // Gửi tin nhắn qua SignalR
-                    await _hubConnection.InvokeAsync("SendMessage", _currentUserId, _currentChatroomId, messageContent);
-                    txtMessageInput.Clear(); // Xóa nội dung input sau khi gửi
+                    // Try SignalR first
+                    await _signalRService.SendMessageAsync(_currentUserId, _currentChatroomId, messageContent);
+                    txtMessageInput.Clear();
+                    _messageManager.AddSystemMessage("Message sent via SignalR");
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    MessageBox.Show($"Error sending message via SignalR: {ex.Message}", "Send Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    Console.WriteLine($"SignalR send message error: {ex}");
-                }
-            }
-            else
-            {
-                // Nếu SignalR chưa kết nối, có thể gửi qua API RESTful như fallback
-                // Hoặc yêu cầu người dùng chờ kết nối.
-                MessageBox.Show("Not connected to chat. Attempting to send via API (fallback)...", "Connection Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                await SendMessageViaApi(_currentUserId, _currentChatroomId, messageContent);
-            }
-        }
-
-        // Phương thức gửi tin nhắn qua API RESTful (fallback hoặc cho các tác vụ ban đầu)
-        private async Task SendMessageViaApi(int senderId, int chatroomId, string content)
-        {
-            using (HttpClient client = new HttpClient())
-            {
-                try
-                {
-                    var messageData = new
+                    // Fallback to API
+                    _messageManager.AddSystemMessage("SignalR failed, trying API fallback...");
+                    bool success = await _apiService.SendMessage(_currentUserId, _currentChatroomId, messageContent);
+                    
+                    if (success)
                     {
-                        senderId = senderId,
-                        chatroomId = chatroomId,
-                        message = content
-                    };
-                    string jsonContent = JsonSerializer.Serialize(messageData);
-                    StringContent httpContent = new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json");
-
-                    HttpResponseMessage response = await client.PostAsync($"{ApiBaseUrl}Messages", httpContent); // Kiểm tra lại URL API của bạn
-
-                    if (response.IsSuccessStatusCode)
-                    {                        
-                        this.Invoke((MethodInvoker)delegate
-                        {
-                            AddSystemMessage("Message sent via API successfully.");
-                        });
+                        txtMessageInput.Clear();
+                        _messageManager.AddSystemMessage("Message sent via API successfully.");
                     }
                     else
                     {
-                        string errorResponse = await response.Content.ReadAsStringAsync();
-                        this.Invoke((MethodInvoker)delegate
-                        {
-                            AddSystemMessage($"Failed to send message via API: {response.StatusCode} - {errorResponse}");
-                        });
-                        Console.WriteLine($"API send message error: {response.StatusCode} - {errorResponse}");
+                        _messageManager.AddSystemMessage("Failed to send message via API.");
                     }
                 }
-                catch (Exception ex)
-                {                    this.Invoke((MethodInvoker)delegate
-                    {
-                        AddSystemMessage($"Error sending message via API: {ex.Message}");
-                    });
-                    Console.WriteLine($"API send message exception: {ex}");
-                }
             }
-        }
-
-        // Xử lý khi Form đóng để ngắt kết nối SignalR
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Unexpected error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }        // Xử lý khi Form đóng để ngắt kết nối SignalR
         private async void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (_hubConnection != null && _hubConnection.State != HubConnectionState.Disconnected)
+            try
             {
-                await _hubConnection.StopAsync();
-                _hubConnection.DisposeAsync();
-                Console.WriteLine("SignalR connection stopped and disposed.");
+                await _signalRService?.DisconnectAsync();
+                _apiService?.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error during form closing: {ex.Message}");
             }
         }
 
-        // Tùy chọn: Gọi API để lấy lịch sử tin nhắn khi Form load
+        // Enhanced Form load with improved API integration
         private async void MainForm_Load(object sender, EventArgs e)
         {
-            // Lấy trang đầu tiên với 20 tin nhắn mỗi trang
-            await LoadChatroomMessages(_currentChatroomId, 1, 20);
+            try
+            {
+                // Load initial chatroom if selected
+                if (_currentChatroomId > 0)
+                {
+                    var chatroomInfo = await _apiService.GetChatroomInfo(_currentChatroomId);
+                    if (chatroomInfo != null)
+                    {
+                        this.Text = $"Chat - {chatroomInfo.Name}";
+                    }
+
+                    // Load participants, stats, and messages
+                    await _apiService.LoadChatroomParticipants(_currentChatroomId);
+                    await _apiService.LoadChatroomStats(_currentChatroomId);
+                    
+                    var messages = await _apiService.GetChatroomMessages(_currentChatroomId, 1, 20);
+                    _messageManager.LoadMessages(messages);
+                    
+                    // Join chatroom
+                    await _apiService.JoinChatroom(_currentChatroomId, _currentUserId);
+                }
+            }
+            catch (Exception ex)
+            {
+                _messageManager.AddSystemMessage($"Error during form load: {ex.Message}");
+            }        // Load chatrooms từ API
+        }
+        private async void LoadChatrooms()
+        {
+            try
+            {
+                var chatroomsResponse = await _apiService.GetUserChatrooms(_currentUserId);
+                
+                if (chatroomsResponse.Chatrooms?.Count > 0)
+                {
+                    _chatroomManager.LoadChatrooms(chatroomsResponse.Chatrooms);
+                }
+                else
+                {
+                    // Fallback: load test data
+                    _chatroomManager.LoadTestData();
+                }
+            }
+            catch (Exception ex)
+            {
+                _chatroomManager.LoadTestData();
+                _messageManager.AddSystemMessage($"Error loading chatrooms: {ex.Message}. Using test data.");
+            }
         }
 
-        private async Task LoadChatroomMessages(int chatroomId, int page = 1, int pageSize = 20)
+        // Load messages for a specific chatroom
+        private async void LoadMessagesForChatroom(int chatroomId)
         {
-            using (HttpClient client = new HttpClient())
+            try
             {
-                try
+                var messages = await _apiService.GetChatroomMessages(chatroomId);
+                _messageManager.LoadMessages(messages);
+            }
+            catch (Exception ex)
+            {
+                _messageManager.AddSystemMessage($"Error loading messages: {ex.Message}");
+            }
+        }
+
+        // Event handlers cho search textbox
+        private void txtSearchChatrooms_Enter(object sender, EventArgs e)
+        {
+            if (txtSearchChatrooms.Text == "Search chatrooms...")
+            {
+                txtSearchChatrooms.Text = "";
+                txtSearchChatrooms.ForeColor = Color.Black;
+            }
+        }
+
+        private void txtSearchChatrooms_Leave(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtSearchChatrooms.Text))
+            {
+                txtSearchChatrooms.Text = "Search chatrooms...";
+                txtSearchChatrooms.ForeColor = Color.Gray;
+            }
+        }
+
+        private void txtSearchChatrooms_TextChanged(object sender, EventArgs e)
+        {
+            _chatroomManager.FilterChatrooms(txtSearchChatrooms.Text);
+        }
+
+        // Load thông tin user từ Properties.Settings
+        private void LoadUserInfoFromSettings()
+        {
+            try
+            {
+                // Kiểm tra xem user đã đăng nhập chưa
+                if (Properties.Settings.Default.IsLoggedIn && 
+                    !string.IsNullOrEmpty(Properties.Settings.Default.UserId))
                 {
-                    HttpResponseMessage response = await client.GetAsync($"{ApiBaseUrl}Chatrooms/{chatroomId}/messages?page={page}&pageSize={pageSize}");
-
-                    if (response.IsSuccessStatusCode)
+                    // Parse userId từ string sang int
+                    if (int.TryParse(Properties.Settings.Default.UserId, out int userId))
                     {
-                        string jsonResponse = await response.Content.ReadAsStringAsync();
-                        var messages = JsonSerializer.Deserialize<List<ChatroomDisplayData>>(jsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-                        this.Invoke((MethodInvoker)delegate
-                        {
-                            pnlChatMessages.Controls.Clear(); // Xóa tin nhắn cũ
-                            foreach (var msg in messages)
-                            {
-                                AddMessageToDisplay(msg.SenderUsername, msg.message, msg.createdAt, msg.senderId == _currentUserId);
-                            }
-                            ScrollToBottom(); // Cuộn xuống cuối
-                        });
+                        _currentUserId = userId;
                     }
                     else
                     {
-                        string errorResponse = await response.Content.ReadAsStringAsync();
-                        this.Invoke((MethodInvoker)delegate
-                        {
-                            AddSystemMessage($"Failed to load chatroom messages: {response.StatusCode} - {errorResponse}");
-                        });
-                        Console.WriteLine($"API load messages error: {response.StatusCode} - {errorResponse}");
+                        // Fallback về default nếu parse thất bại
+                        _currentUserId = 1;
                     }
                 }
-                catch (Exception ex)
+                else
                 {
-                    this.Invoke((MethodInvoker)delegate
-                    {
-                        AddSystemMessage($"Error loading chatroom messages: {ex.Message}");
-                    });
-                    Console.WriteLine($"API load messages exception: {ex}");
+                    // User chưa đăng nhập, redirect về login
+                    MessageBox.Show("Bạn chưa đăng nhập. Vui lòng đăng nhập lại.", "Chưa đăng nhập", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    
+                    // Đóng form hiện tại và mở login form
+                    this.Hide();
+                    login loginForm = new login();
+                    loginForm.Show();
+                    return;
                 }
             }
-        }
-
-        private void ScrollToBottom()
-        {
-            // Kiểm tra xem thanh cuộn dọc có hiển thị không
-            if (pnlChatMessages.VerticalScroll.Visible)
+            catch (Exception ex)
             {
-                // Đặt giá trị thanh cuộn đến mức tối đa
-                pnlChatMessages.VerticalScroll.Value = pnlChatMessages.VerticalScroll.Maximum;
-            }
-            // Ngoài ra, bạn có thể sử dụng ScrollControlIntoView để đảm bảo control cuối cùng hiển thị
-            if (pnlChatMessages.Controls.Count > 0)
-            {
-                pnlChatMessages.ScrollControlIntoView(pnlChatMessages.Controls[pnlChatMessages.Controls.Count - 1]);
+                MessageBox.Show($"Lỗi khi load thông tin user: {ex.Message}", "Lỗi", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                _currentUserId = 1; // Fallback
             }
         }
 
-        private void AddMessageToDisplay(string senderUsername, string content, DateTime timestamp, bool isMyMessage)
+        // Cập nhật thông tin hiển thị của user
+        private void UpdateUserDisplayInfo()
         {
-            // 1. Tạo một instance mới của MessageBubbleControl
-            var messageBubble = new MessageBubbleControl();
-
-            // 2. Cấu hình MessageBubbleControl với dữ liệu tin nhắn
-            messageBubble.SetMessage(senderUsername, content, timestamp, isMyMessage);
-
-            // 3. Đặt kích thước của MessageBubbleControl
-            // Chiều rộng của bong bóng sẽ bằng chiều rộng của panel chứa nó
-            // Trừ đi padding/margin để nó không tràn ra ngoài
-            // pnlChatMessages.ClientSize.Width: Chiều rộng khả dụng bên trong panel
-            messageBubble.Width = pnlChatMessages.ClientSize.Width - (pnlChatMessages.Padding.Horizontal * 2) - 20; // 20 là để chừa chỗ cho thanh cuộn nếu có
-
-            // 4. Đặt thuộc tính Anchor để nó co giãn theo chiều ngang của panel
-            messageBubble.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-
-            // 5. Thêm MessageBubbleControl vào Controls collection của pnlChatMessages
-            pnlChatMessages.Controls.Add(messageBubble);
-
-            // 6. Tính toán và đặt vị trí Y cho bong bóng tin nhắn mới
-            // Các control được xếp chồng lên nhau theo chiều dọc
-            int yPos = pnlChatMessages.Padding.Top; // Bắt đầu từ padding trên cùng
-            foreach (Control ctrl in pnlChatMessages.Controls)
+            try
             {
-                if (ctrl != messageBubble) // Tính vị trí của các control đã tồn tại
+                string displayText = "";
+                
+                // Lấy displayName từ Settings
+                string displayName = Properties.Settings.Default.DisplayName;
+                string email = Properties.Settings.Default.UserEmail;
+                
+                // Nếu displayName trống, fallback về email
+                if (!string.IsNullOrEmpty(displayName))
                 {
-                    yPos += ctrl.Height + ctrl.Margin.Vertical; // Cộng thêm chiều cao và margin của control đó
+                    displayText = displayName;
                 }
+                else if (!string.IsNullOrEmpty(email))
+                {
+                    displayText = email;
+                }
+                else
+                {
+                    displayText = $"User {_currentUserId}"; // Fallback cuối cùng
+                }
+                
+                // Cập nhật txtCurrentUserId thành hiển thị displayName
+                txtCurrentUserId.Text = displayText;
+                
+                // Cập nhật title của form để hiển thị thông tin user
+                this.Text = $"Chat - {displayText}";
             }
-            messageBubble.Location = new Point(pnlChatMessages.Padding.Left, yPos);
-
-            // 7. Đảm bảo tin nhắn mới nhất hiển thị ở dưới cùng
-            // Vì chúng ta thêm vào cuối Controls collection, nó sẽ tự động hiển thị ở dưới cùng
-            // Nhưng nếu bạn muốn đảm bảo thứ tự render, có thể dùng BringToFront hoặc SendToBack.
-            // Trong trường hợp này, việc thêm vào cuối và tính yPos là đủ.
-
-            ScrollToBottom(); // Cuộn xuống tin nhắn mới nhất
-        }
-
-
-        // DTO để ánh xạ dữ liệu tin nhắn từ API
-        // Bạn cần đảm bảo các thuộc tính khớp với JSON trả về từ API của bạn
-        public class MessageDisplayData
-        {
-            public int messageId { get; set; }
-            public int senderId { get; set; }
-            public string SenderUsername { get; set; }
-            public int chatRoomId { get; set; }
-            public string Content { get; set; }
-            public DateTime createdAt { get; set; }
-        }
-
-        public class ChatroomDisplayData
-        {
-            public int messageId { get; set; }
-            public int senderId { get; set; }
-            public string SenderUsername { get; set; }
-            public int chatRoomId { get; set; }
-            public string message { get; set; }
-            public DateTime createdAt { get; set; }
-        }
-
-        // Phương thức trợ giúp để thêm tin nhắn vào RichTextBox với định dạng chuyên nghiệp
-        private void AddSystemMessage(string message)
-        {
-            var systemMessageLabel = new Label
+            catch (Exception ex)
             {
-                Text = message,
-                AutoSize = true,
-                ForeColor = Color.Gray,
-                Font = new Font(this.Font.FontFamily, 8),
-                Padding = new Padding(5),
-                Margin = new Padding(5)
-            };
-            // Giới hạn chiều rộng của label để nó không tràn ra ngoài panel
-            systemMessageLabel.MaximumSize = new Size(pnlChatMessages.ClientSize.Width - 10, 0);
-            systemMessageLabel.Anchor = AnchorStyles.Left | AnchorStyles.Right;
-
-            pnlChatMessages.Controls.Add(systemMessageLabel);
-
-            ScrollToBottom();
+                MessageBox.Show($"Lỗi khi cập nhật thông tin hiển thị: {ex.Message}", "Lỗi", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                txtCurrentUserId.Text = $"User {_currentUserId}";
+            }
         }
     }
 }
