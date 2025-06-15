@@ -39,11 +39,13 @@ namespace project_cuoi_ky
             
             // Initialize services
             InitializeServices();
-            
-            // Đặt các giá trị vào UI
+              // Đặt các giá trị vào UI
             UpdateUserDisplayInfo();
             txtCurrentChatroomId.Text = _currentChatroomId.ToString();
             this.FormClosing += MainForm_FormClosing;
+
+            // Add tooltips
+            AddTooltips();
 
             // Load chatrooms
             LoadChatrooms();
@@ -138,7 +140,7 @@ namespace project_cuoi_ky
             var selectedChatroom = _chatroomManager.GetChatroomById(chatroomId);
             if (selectedChatroom != null)
             {
-                chatTitleLabel.Text = selectedChatroom.Name;
+                chatTitleLabel.Text = selectedChatroom.name;
             }
             
             // Clear messages and load new ones
@@ -239,7 +241,7 @@ namespace project_cuoi_ky
                     var chatroomInfo = await _apiService.GetChatroomInfo(_currentChatroomId);
                     if (chatroomInfo != null)
                     {
-                        this.Text = $"Chat - {chatroomInfo.Name}";
+                        this.Text = $"Chat - {chatroomInfo.name}";
                     }
 
                     // Load participants, stats, and messages
@@ -257,37 +259,63 @@ namespace project_cuoi_ky
             {
                 _messageManager.AddSystemMessage($"Error during form load: {ex.Message}");
             }        // Load chatrooms từ API
-        }
-        private async void LoadChatrooms()
+        }        private async Task LoadChatrooms()
         {
             try
             {
+                // Show loading status
+                userStatusLabel.Text = "Loading chatrooms...";
+                userStatusLabel.ForeColor = System.Drawing.Color.Blue;
+                
+                // Debug: Show API URL being called
+                _messageManager.AddSystemMessage($"Calling API: /api/Chatrooms/user/{_currentUserId}");
+                
                 var chatroomsResponse = await _apiService.GetUserChatrooms(_currentUserId);
                 
-                if (chatroomsResponse.Chatrooms?.Count > 0)
+                if (chatroomsResponse?.Chatrooms?.Count > 0)
                 {
                     _chatroomManager.LoadChatrooms(chatroomsResponse.Chatrooms);
+                    userStatusLabel.Text = $"{chatroomsResponse.Chatrooms.Count} chatrooms loaded";
+                    userStatusLabel.ForeColor = System.Drawing.Color.Green;
+                    _messageManager.AddSystemMessage($"Successfully loaded {chatroomsResponse.Chatrooms.Count} chatrooms");
                 }
                 else
                 {
-                    // Fallback: load test data
-                    _chatroomManager.LoadTestData();
+                    // Show no chatrooms message instead of test data
+                    _chatroomManager.ShowNoChatroomsMessage();
+                    _messageManager.AddSystemMessage($"API call successful but returned no chatrooms for user {_currentUserId}");
+                    userStatusLabel.Text = "No chatrooms found";
+                    userStatusLabel.ForeColor = System.Drawing.Color.Orange;
                 }
             }
             catch (Exception ex)
             {
-                _chatroomManager.LoadTestData();
-                _messageManager.AddSystemMessage($"Error loading chatrooms: {ex.Message}. Using test data.");
+                _chatroomManager.ShowNoChatroomsMessage();
+                _messageManager.AddSystemMessage($"Error loading chatrooms: {ex.Message}. Please check your connection.");
+                userStatusLabel.Text = "Error loading chatrooms";
+                userStatusLabel.ForeColor = System.Drawing.Color.Red;
             }
-        }
-
+        
+                //userStatusLabel.Text = "Error loading chatrooms";
+                //userStatusLabel.ForeColor = System.Drawing.Color.Red;
+        }   
+        
         // Load messages for a specific chatroom
         private async void LoadMessagesForChatroom(int chatroomId)
         {
             try
             {
                 var messages = await _apiService.GetChatroomMessages(chatroomId);
-                _messageManager.LoadMessages(messages);
+                
+                if (messages?.Count > 0)
+                {
+                    _messageManager.LoadMessages(messages);
+                    _messageManager.AddSystemMessage($"Loaded {messages.Count} messages for chatroom {chatroomId}");
+                }
+                else
+                {
+                    _messageManager.AddSystemMessage($"No messages found for chatroom {chatroomId}. Start the conversation!");
+                }
             }
             catch (Exception ex)
             {
@@ -397,6 +425,137 @@ namespace project_cuoi_ky
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
                 txtCurrentUserId.Text = $"User {_currentUserId}";
             }
+        }
+
+        // Method to refresh chatrooms
+        private async void RefreshChatrooms()
+        {
+            await LoadChatrooms();
+        }
+
+        // Add this to handle double-click on status label to refresh
+        private void userStatusLabel_DoubleClick(object sender, EventArgs e)
+        {
+            if (userStatusLabel.Text.Contains("Error") || userStatusLabel.Text.Contains("No chatrooms"))
+            {
+                RefreshChatrooms();
+            }
+        }
+
+        // Test method để debug API call
+        private async void TestApiCall()
+        {
+            try
+            {
+                userStatusLabel.Text = "Testing API...";
+                userStatusLabel.ForeColor = System.Drawing.Color.Blue;
+                
+                var url = $"https://localhost:7092/api/Chatrooms/user/{_currentUserId}";
+                _messageManager.AddSystemMessage($"Testing API call to: {url}");
+                _messageManager.AddSystemMessage($"Current User ID: {_currentUserId}");
+                
+                using (var client = new HttpClient())
+                {
+                    var response = await client.GetAsync(url);
+                    _messageManager.AddSystemMessage($"Response Status: {response.StatusCode}");
+                    
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var content = await response.Content.ReadAsStringAsync();
+                        _messageManager.AddSystemMessage($"Response Content: {content}");
+                    }
+                    else
+                    {
+                        var errorContent = await response.Content.ReadAsStringAsync();
+                        _messageManager.AddSystemMessage($"Error Content: {errorContent}");
+                    }
+                }
+                
+                userStatusLabel.Text = "API test completed";
+                userStatusLabel.ForeColor = System.Drawing.Color.Green;
+            }
+            catch (Exception ex)
+            {
+                _messageManager.AddSystemMessage($"Test API Error: {ex.Message}");
+                userStatusLabel.Text = "API test failed";
+                userStatusLabel.ForeColor = System.Drawing.Color.Red;
+            }
+        }        
+        
+        // Status click now only refreshes chatrooms, remove test API call
+        private void userStatusLabel_Click(object sender, EventArgs e)
+        {
+            RefreshChatrooms();
+        }
+        
+        private void txtMessageInput_Enter(object sender, EventArgs e)
+        {
+            // This method is for when textbox gets focus, not for Enter key
+        }
+
+        // Handle Enter key press to send message
+        private void txtMessageInput_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter && !e.Shift)
+            {
+                e.Handled = true; // Prevent the newline
+                btnSendMessage_Click(sender, e);
+            }
+        }
+
+        // Logout functionality
+        private void LogoutUser()
+        {
+            try
+            {
+                // Clear all user settings
+                Properties.Settings.Default.AccessToken = "";
+                Properties.Settings.Default.RefreshToken = "";
+                Properties.Settings.Default.UserId = "";
+                Properties.Settings.Default.UserEmail = "";
+                Properties.Settings.Default.DisplayName = "";
+                Properties.Settings.Default.IsLoggedIn = false;
+                Properties.Settings.Default.Save();
+                
+                // Disconnect services
+                _ = Task.Run(async () =>
+                {
+                    await _signalRService?.DisconnectAsync();
+                });
+                
+                // Show login form and close current form
+                this.Hide();
+                login loginForm = new login();
+                loginForm.Show();
+                this.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error during logout: {ex.Message}", "Logout Error", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        // Handle user profile picture double-click for logout
+        private void userProfilePicture_DoubleClick(object sender, EventArgs e)
+        {
+            var result = MessageBox.Show("Do you want to logout?", "Logout Confirmation", 
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            
+            if (result == DialogResult.Yes)
+            {
+                LogoutUser();
+            }
+        }
+
+        // Add tooltips for better UX
+        private void AddTooltips()
+        {
+            var tooltip = new ToolTip();
+            tooltip.SetToolTip(userProfilePicture, "Double-click to logout");
+            tooltip.SetToolTip(userStatusLabel, "Click to refresh chatrooms\nDouble-click to retry if error");
+            tooltip.SetToolTip(txtSearchChatrooms, "Search your chatrooms");
+            tooltip.SetToolTip(btnSendMessage, "Send message (or press Enter)");
         }
     }
 }

@@ -5,16 +5,16 @@ namespace project_cuoi_ky
 {
     public class ChatroomInfo
     {
-        public int ChatRoomId { get; set; }
-        public string Name { get; set; } = "";
-        public string Description { get; set; } = "";
-        public bool IsGroup { get; set; }
-        public bool IsPrivate { get; set; }
-        public bool IsArchived { get; set; }
-        public int CreatedBy { get; set; }
-        public string CreatorName { get; set; } = "";
-        public DateTime CreatedAt { get; set; }
-        public DateTime LastActivity { get; set; }
+        public int chatRoomId { get; set; }
+        public string name { get; set; } = "";
+        public string description { get; set; } = "";
+        public bool isGroup { get; set; }
+        public bool isPrivate { get; set; }
+        public bool isArchived { get; set; }
+        public int createdBy { get; set; }
+        public string creatorName { get; set; } = "";
+        public DateTime createdAt { get; set; }
+        public DateTime lastActivity { get; set; }
         public int ParticipantCount { get; set; }
         public List<int> Members { get; set; }
         
