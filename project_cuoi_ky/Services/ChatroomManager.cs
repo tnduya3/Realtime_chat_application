@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -16,41 +17,61 @@ namespace project_cuoi_ky.Services
         public event Action<string> StatusChanged;
         
         public int SelectedChatroomId { get; private set; }
-        public ChatroomInfo SelectedChatroom => _allChatrooms?.FirstOrDefault(c => c.ChatRoomId == SelectedChatroomId);
+        public ChatroomInfo SelectedChatroom => _allChatrooms?.FirstOrDefault(c => c.chatRoomId == SelectedChatroomId);
         
         public ChatroomManager(FlowLayoutPanel chatroomListPanel)
         {
             _chatroomListPanel = chatroomListPanel;
             _allChatrooms = new List<ChatroomInfo>();
             _filteredChatrooms = new List<ChatroomInfo>();
-        }
-
+        }        
+        
         public void LoadChatrooms(List<ChatroomInfo> chatrooms)
         {
             _allChatrooms = chatrooms ?? new List<ChatroomInfo>();
             _filteredChatrooms = new List<ChatroomInfo>(_allChatrooms);
-            DisplayChatrooms();
             
-            // Auto-select first chatroom if none selected
-            if (_allChatrooms.Count > 0 && SelectedChatroomId <= 0)
+            if (_allChatrooms.Count > 0)
             {
-                SelectChatroom(_allChatrooms[0].ChatRoomId);
+                DisplayChatrooms();
+                
+                // Auto-select first chatroom if none selected
+                if (SelectedChatroomId <= 0)
+                {
+                    SelectChatroom(_allChatrooms[0].chatRoomId);
+                }
+                
+                StatusChanged?.Invoke($"Loaded {_allChatrooms.Count} chatrooms");
             }
-            
-            StatusChanged?.Invoke($"Loaded {_allChatrooms.Count} chatrooms");
-        }
-
-        public void LoadTestData()
-        {
-            var testChatrooms = new List<ChatroomInfo>
+            else
             {
-                new ChatroomInfo { ChatRoomId = 1, Name = "General Chat", IsGroup = true, CreatedAt = DateTime.Now },
-                new ChatroomInfo { ChatRoomId = 2, Name = "Random", IsGroup = true, CreatedAt = DateTime.Now },
-                new ChatroomInfo { ChatRoomId = 3, Name = "Test User", IsGroup = false, CreatedAt = DateTime.Now }
-            };
-            
-            LoadChatrooms(testChatrooms);
-            StatusChanged?.Invoke("Using test data");
+                ShowNoChatroomsMessage();
+            }
+        }        public void ShowNoChatroomsMessage()
+        {
+            try
+            {
+                _chatroomListPanel.Controls.Clear();
+                
+                var noDataLabel = new Label
+                {
+                    Text = "No chatrooms found.\nPlease check your connection or contact support.\n\nDouble-click status bar to retry.",
+                    Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Regular),
+                    ForeColor = System.Drawing.Color.Gray,
+                    TextAlign = System.Drawing.ContentAlignment.MiddleCenter,
+                    AutoSize = false,
+                    Width = _chatroomListPanel.Width - 20,
+                    Height = 120,
+                    Margin = new Padding(10)
+                };
+                
+                _chatroomListPanel.Controls.Add(noDataLabel);
+                StatusChanged?.Invoke("No chatrooms available");
+            }
+            catch (Exception ex)
+            {
+                StatusChanged?.Invoke($"Error displaying no chatrooms message: {ex.Message}");
+            }
         }
 
         private void DisplayChatrooms()
@@ -84,7 +105,7 @@ namespace project_cuoi_ky.Services
         {
             try
             {
-                var selectedChatroom = _allChatrooms.FirstOrDefault(c => c.ChatRoomId == chatroomId);
+                var selectedChatroom = _allChatrooms.FirstOrDefault(c => c.chatRoomId == chatroomId);
                 if (selectedChatroom == null) return;
                 
                 // Deselect previous chatroom card
@@ -126,7 +147,7 @@ namespace project_cuoi_ky.Services
                 else
                 {
                     _filteredChatrooms = _allChatrooms.Where(c => 
-                        c.Name.ToLower().Contains(searchText)).ToList();
+                        c.name.ToLower().Contains(searchText)).ToList();
                 }
                 
                 DisplayChatrooms();
@@ -139,7 +160,7 @@ namespace project_cuoi_ky.Services
 
         public ChatroomInfo GetChatroomById(int chatroomId)
         {
-            return _allChatrooms?.FirstOrDefault(c => c.ChatRoomId == chatroomId);
+            return _allChatrooms?.FirstOrDefault(c => c.chatRoomId == chatroomId);
         }
     }
 }

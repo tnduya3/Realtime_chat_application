@@ -44,10 +44,11 @@
             this.userStatusPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.userProfilePicture)).BeginInit();
             this.pnlRight.SuspendLayout();
-            this.SuspendLayout();            // 
+            this.SuspendLayout();
+            // 
             // pnlLeft
             // 
-            this.pnlLeft.BackColor = System.Drawing.Color.White;
+            this.pnlLeft.BackColor = System.Drawing.SystemColors.Control;
             this.pnlLeft.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pnlLeft.Controls.Add(this.pnlChatroomList);
             this.pnlLeft.Controls.Add(this.txtSearchChatrooms);
@@ -57,11 +58,12 @@
             this.pnlLeft.Location = new System.Drawing.Point(0, 0);
             this.pnlLeft.Name = "pnlLeft";
             this.pnlLeft.Size = new System.Drawing.Size(300, 450);
-            this.pnlLeft.TabIndex = 0;            // 
+            this.pnlLeft.TabIndex = 0;
+            // 
             // pnlChatroomList
             // 
             this.pnlChatroomList.AutoScroll = true;
-            this.pnlChatroomList.BackColor = System.Drawing.Color.White;
+            this.pnlChatroomList.BackColor = System.Drawing.SystemColors.Control;
             this.pnlChatroomList.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.pnlChatroomList.Location = new System.Drawing.Point(0, 80);
             this.pnlChatroomList.Name = "pnlChatroomList";
@@ -73,15 +75,15 @@
             // 
             this.txtSearchChatrooms.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.txtSearchChatrooms.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.txtSearchChatrooms.ForeColor = System.Drawing.Color.Gray;
             this.txtSearchChatrooms.Location = new System.Drawing.Point(10, 45);
             this.txtSearchChatrooms.Name = "txtSearchChatrooms";
             this.txtSearchChatrooms.Size = new System.Drawing.Size(278, 25);
             this.txtSearchChatrooms.TabIndex = 6;
             this.txtSearchChatrooms.Text = "Search chatrooms...";
-            this.txtSearchChatrooms.ForeColor = System.Drawing.Color.Gray;
+            this.txtSearchChatrooms.TextChanged += new System.EventHandler(this.txtSearchChatrooms_TextChanged);
             this.txtSearchChatrooms.Enter += new System.EventHandler(this.txtSearchChatrooms_Enter);
             this.txtSearchChatrooms.Leave += new System.EventHandler(this.txtSearchChatrooms_Leave);
-            this.txtSearchChatrooms.TextChanged += new System.EventHandler(this.txtSearchChatrooms_TextChanged);
             // 
             // contactsLabel
             // 
@@ -90,7 +92,7 @@
             this.contactsLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(111)))), ((int)(((byte)(111)))));
             this.contactsLabel.Location = new System.Drawing.Point(10, 10);
             this.contactsLabel.Name = "contactsLabel";
-            this.contactsLabel.Size = new System.Drawing.Size(95, 25);
+            this.contactsLabel.Size = new System.Drawing.Size(106, 25);
             this.contactsLabel.TabIndex = 5;
             this.contactsLabel.Text = "Chatrooms";
             // 
@@ -117,6 +119,8 @@
             this.userStatusLabel.Size = new System.Drawing.Size(39, 13);
             this.userStatusLabel.TabIndex = 2;
             this.userStatusLabel.Text = "Online";
+            this.userStatusLabel.Click += new System.EventHandler(this.userStatusLabel_Click);
+            this.userStatusLabel.DoubleClick += new System.EventHandler(this.userStatusLabel_DoubleClick);
             // 
             // txtCurrentUserId
             // 
@@ -127,6 +131,8 @@
             this.txtCurrentUserId.Size = new System.Drawing.Size(65, 15);
             this.txtCurrentUserId.TabIndex = 1;
             this.txtCurrentUserId.Text = "User Name";
+            this.txtCurrentUserId.Click += new System.EventHandler(this.userStatusLabel_Click);
+            this.txtCurrentUserId.DoubleClick += new System.EventHandler(this.userStatusLabel_DoubleClick);
             // 
             // userProfilePicture
             // 
@@ -137,10 +143,11 @@
             this.userProfilePicture.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.userProfilePicture.TabIndex = 0;
             this.userProfilePicture.TabStop = false;
+            this.userProfilePicture.DoubleClick += new System.EventHandler(this.userProfilePicture_DoubleClick);
             // 
             // pnlRight
             // 
-            this.pnlRight.BackColor = System.Drawing.Color.White;
+            this.pnlRight.BackColor = System.Drawing.SystemColors.Control;
             this.pnlRight.Controls.Add(this.btnSendMessage);
             this.pnlRight.Controls.Add(this.txtMessageInput);
             this.pnlRight.Controls.Add(this.pnlChatMessages);
@@ -151,7 +158,7 @@
             this.pnlRight.Name = "pnlRight";
             this.pnlRight.Size = new System.Drawing.Size(289, 450);
             this.pnlRight.TabIndex = 1;
-            this.contactsLabel.Name = "contactsLabel";            // 
+            // 
             // btnSendMessage
             // 
             this.btnSendMessage.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(111)))), ((int)(((byte)(111)))));
@@ -175,6 +182,8 @@
             this.txtMessageInput.Name = "txtMessageInput";
             this.txtMessageInput.Size = new System.Drawing.Size(188, 26);
             this.txtMessageInput.TabIndex = 1;
+            this.txtMessageInput.Enter += new System.EventHandler(this.txtMessageInput_Enter);
+            this.txtMessageInput.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtMessageInput_KeyDown);
             // 
             // pnlChatMessages
             // 
@@ -192,7 +201,7 @@
             this.chatTitleLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(111)))), ((int)(((byte)(111)))));
             this.chatTitleLabel.Location = new System.Drawing.Point(10, 13);
             this.chatTitleLabel.Name = "chatTitleLabel";
-            this.chatTitleLabel.Size = new System.Drawing.Size(153, 21);
+            this.chatTitleLabel.Size = new System.Drawing.Size(142, 21);
             this.chatTitleLabel.TabIndex = 4;
             this.chatTitleLabel.Text = "Select a chatroom";
             // 
@@ -202,7 +211,8 @@
             this.txtCurrentChatroomId.Name = "txtCurrentChatroomId";
             this.txtCurrentChatroomId.Size = new System.Drawing.Size(100, 20);
             this.txtCurrentChatroomId.TabIndex = 8;
-            this.txtCurrentChatroomId.Visible = false;            // 
+            this.txtCurrentChatroomId.Visible = false;
+            // 
             // home
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);

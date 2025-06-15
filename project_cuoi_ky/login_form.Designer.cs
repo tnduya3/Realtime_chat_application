@@ -169,6 +169,7 @@
             this.Controls.Add(this.titleLabel);
             this.Controls.Add(this.logoBox);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.ImeMode = System.Windows.Forms.ImeMode.Alpha;
             this.Name = "login";
             this.Opacity = 0.9D;

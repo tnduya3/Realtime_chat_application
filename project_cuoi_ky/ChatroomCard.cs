@@ -16,7 +16,7 @@ namespace project_cuoi_ky
         
         public event EventHandler<int> ChatroomSelected;
         
-        public int ChatroomId => _chatroomInfo?.ChatRoomId ?? 0;
+        public int ChatroomId => _chatroomInfo?.chatRoomId ?? 0;
         
         public ChatroomCard()
         {
@@ -130,7 +130,7 @@ namespace project_cuoi_ky
         {
             if (_chatroomInfo != null)
             {
-                ChatroomSelected?.Invoke(this, _chatroomInfo.ChatRoomId);
+                ChatroomSelected?.Invoke(this, _chatroomInfo.chatRoomId);
             }
         }
         
@@ -139,7 +139,7 @@ namespace project_cuoi_ky
             _chatroomInfo = chatroomInfo;
             
             // Set chatroom name
-            lblChatroomName.Text = chatroomInfo.Name;
+            lblChatroomName.Text = chatroomInfo.name;
             
             // Set last message
             if (!string.IsNullOrEmpty(lastMessage))
@@ -148,7 +148,7 @@ namespace project_cuoi_ky
             }
             else
             {
-                lblLastMessage.Text = chatroomInfo.IsGroup ? "Group chat" : "Private chat";
+                lblLastMessage.Text = chatroomInfo.isGroup ? "Group chat" : "Private chat";
             }
             
             // Set time
@@ -170,7 +170,7 @@ namespace project_cuoi_ky
             }
             else
             {
-                lblTime.Text = chatroomInfo.CreatedAt.ToString("dd/MM");
+                lblTime.Text = chatroomInfo.createdAt.ToString("dd/MM");
             }
             
             // Set unread count
@@ -185,7 +185,7 @@ namespace project_cuoi_ky
             }
             
             // Set avatar based on chatroom type
-            if (chatroomInfo.IsGroup)
+            if (chatroomInfo.isGroup)
             {
                 picAvatar.BackColor = Color.FromArgb(0, 120, 215);
                 // You can set a group icon here

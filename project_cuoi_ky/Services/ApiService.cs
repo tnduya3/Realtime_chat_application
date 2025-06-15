@@ -40,28 +40,80 @@ namespace project_cuoi_ky.Services
             }
             
             return null;
-        }
-
-        // Chatroom API Methods
+        }        // Chatroom API Methods
         public async Task<GetChatroomsResponse> GetUserChatrooms(int userId)
         {
             try
             {
-                var response = await _httpClient.GetAsync($"{_apiBaseUrl}/Users/{userId}");
+                // Use the correct endpoint from API documentation
+                var url = $"{_apiBaseUrl}Chatrooms/user/{userId}";
+                
+                var response = await _httpClient.GetAsync(url);
                 
                 if (response.IsSuccessStatusCode)
                 {
                     var jsonString = await response.Content.ReadAsStringAsync();
-                    return JsonSerializer.Deserialize<GetChatroomsResponse>(jsonString, new JsonSerializerOptions
+                    
+                    // Debug: log the response
+                    System.Diagnostics.Debug.WriteLine($"API Response from {url}:");
+                    System.Diagnostics.Debug.WriteLine(jsonString);
+                    
+                    // Debug: check if response is empty
+                    if (string.IsNullOrWhiteSpace(jsonString))
                     {
-                        PropertyNameCaseInsensitive = true
-                    });
+                        return new GetChatroomsResponse(); // Return empty response
+                    }
+                    
+                    // Based on the API response, it seems to return a single chatroom object
+                    // Let's try to deserialize it as a single chatroom first, then as an array
+                    try
+                    {
+                        // Try to deserialize as an array of chatrooms
+                        var chatroomsList = JsonSerializer.Deserialize<List<ChatroomInfo>>(jsonString, new JsonSerializerOptions
+                        {
+                            PropertyNameCaseInsensitive = true
+                        });
+                        
+                        if (chatroomsList != null)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Successfully parsed as array: {chatroomsList.Count} chatrooms");
+                            return new GetChatroomsResponse { Chatrooms = chatroomsList };
+                        }
+                    }
+                    catch (Exception arrayEx)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Failed to parse as array: {arrayEx.Message}");
+                        
+                        // If that fails, try to deserialize as a single chatroom
+                        try
+                        {
+                            var singleChatroom = JsonSerializer.Deserialize<ChatroomInfo>(jsonString, new JsonSerializerOptions
+                            {
+                                PropertyNameCaseInsensitive = true
+                            });
+                            
+                            if (singleChatroom != null)
+                            {
+                                System.Diagnostics.Debug.WriteLine($"Successfully parsed as single chatroom: {singleChatroom.name}");
+                                return new GetChatroomsResponse { Chatrooms = new List<ChatroomInfo> { singleChatroom } };
+                            }
+                        }
+                        catch (Exception singleEx)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Failed to parse as single chatroom: {singleEx.Message}");
+                        }
+                    }
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"API call failed with status: {response.StatusCode}");
                 }
                 
                 return new GetChatroomsResponse(); // Return empty response
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Error getting user chatrooms: {ex.Message}");
                 return new GetChatroomsResponse(); // Return empty response on error
             }
         }
