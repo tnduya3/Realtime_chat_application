@@ -14,7 +14,8 @@ namespace project_cuoi_ky
 {
     public partial class friend_list : Form
     {
-        private const string ApiBaseUrl = "https://localhost:7092/api/";        private FriendService _friendService;
+        private const string ApiBaseUrl = "https://localhost:7092/api/";        
+        private FriendService _friendService;
         private int _currentUserId;
         private List<project_cuoi_ky.Models.ApiUserInfo> _allUsers;
         private List<project_cuoi_ky.Models.FriendInfo> _friends;
@@ -31,7 +32,8 @@ namespace project_cuoi_ky
             LoadUserInfoFromSettings();
             
             // Initialize services
-            _friendService = new FriendService(ApiBaseUrl);            _allUsers = new List<ApiUserInfo>();
+            _friendService = new FriendService(ApiBaseUrl);            
+            _allUsers = new List<ApiUserInfo>();
             _friends = new List<FriendInfo>();
             _pendingRequests = new List<ApiUserInfo>();
             _statusCache = new Dictionary<int, FriendshipStatus>();
@@ -97,7 +99,8 @@ namespace project_cuoi_ky
                 lblAllUsersStatus.ForeColor = Color.Blue;
                 
                 var response = await _friendService.GetAllUsers();
-                  if (response?.Users?.Count > 0)
+                  
+                if (response?.Users?.Count > 0)
                 {
                     _allUsers = response.Users;
                     
@@ -157,7 +160,8 @@ namespace project_cuoi_ky
                 lblRequestsStatus.Text = "Loading requests...";
                 lblRequestsStatus.ForeColor = Color.Blue;
                 
-                var response = await _friendService.GetPendingRequests(_currentUserId);                if (response?.Requests?.Count > 0)
+                var response = await _friendService.GetPendingRequests(_currentUserId);                
+                if (response?.Requests?.Count > 0)
                 {
                     _pendingRequests = response.Requests;
                     DisplayPendingRequests();
@@ -223,7 +227,9 @@ namespace project_cuoi_ky
                 
                 pnlFriends.Controls.Add(userCard);
             }
-        }        private void DisplayPendingRequests()
+        }        
+        
+        private void DisplayPendingRequests()
         {
             pnlRequests.Controls.Clear();
             
@@ -345,7 +351,8 @@ namespace project_cuoi_ky
                             await LoadAllData(); // Refresh data
                         }
                         break;
-                          case "accept_request":
+                          
+                    case "accept_request":
                         success = await _friendService.AcceptFriendRequest(_currentUserId, args.friendId);
                         if (success)
                         {
@@ -429,7 +436,8 @@ namespace project_cuoi_ky
                 txtSearch.ForeColor = Color.Gray;
             }
         }
-          private async void txtSearch_TextChanged(object sender, EventArgs e)
+          
+        private async void txtSearch_TextChanged(object sender, EventArgs e)
         {
             _searchText = txtSearch.Text;
             
@@ -439,7 +447,8 @@ namespace project_cuoi_ky
                 await DisplayAllUsers();
             }
         }
-          protected override void OnFormClosing(FormClosingEventArgs e)
+          
+        protected override void OnFormClosing(FormClosingEventArgs e)
         {
             _friendService?.Dispose();
             base.OnFormClosing(e);

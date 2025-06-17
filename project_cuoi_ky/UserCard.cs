@@ -6,13 +6,14 @@ using project_cuoi_ky.Models;
 namespace project_cuoi_ky
 {
     public partial class UserCard : UserControl
-    {        private Panel pnlMain;
+    {        
+        private Panel pnlMain;
         private PictureBox picAvatar;
         private Label lblUserName;
         private Label lblEmail;
-        private Label lblStatus; // For showing raw API status
+        private Label lblStatus;
         private Button btnAction;
-        private Button btnReject; // Additional button for reject action
+        private Button btnReject;
         private ApiUserInfo _userInfo;
         private FriendshipStatus _friendshipStatus;
         
@@ -27,7 +28,7 @@ namespace project_cuoi_ky
         }
           private void SetupLayout()
         {
-            this.Size = new Size(300, 85); // Increased height for status label
+            this.Size = new Size(300, 85);
             this.BackColor = Color.White;
             this.BorderStyle = BorderStyle.FixedSingle;
             this.Margin = new Padding(5);
@@ -249,7 +250,8 @@ namespace project_cuoi_ky
                     break;
             }
         }
-          private string GetActionFromStatus(FriendshipStatus status)
+          
+        private string GetActionFromStatus(FriendshipStatus status)
         {
             switch (status)
             {

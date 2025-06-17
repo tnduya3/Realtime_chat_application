@@ -89,7 +89,9 @@ namespace project_cuoi_ky.Models
         {
             Friends = new List<FriendInfo>();
         }
-    }    public class GetFriendRequestsResponse
+    }    
+    
+    public class GetFriendRequestsResponse
     {
         public List<ApiUserInfo> Requests { get; set; }
         
