@@ -237,6 +237,12 @@
     <Compile Include="forgot.Designer.cs">
       <DependentUpon>forgot.cs</DependentUpon>
     </Compile>
+    <Compile Include="friend_list.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="friend_list.Designer.cs">
+      <DependentUpon>friend_list.cs</DependentUpon>
+    </Compile>
     <Compile Include="home.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -257,6 +263,7 @@
     </Compile>
     <Compile Include="Models\ChatroomModels.cs" />
     <Compile Include="Models\DataModels.cs" />
+    <Compile Include="Models\FriendModels.cs" />
     <Compile Include="Models\UserModels.cs" />
     <Compile Include="obj\Debug\.NETFramework,Version=v4.7.2.AssemblyAttributes.cs" />
     <Compile Include="Program.cs" />
@@ -269,10 +276,20 @@
     </Compile>
     <Compile Include="Services\ApiService.cs" />
     <Compile Include="Services\ChatroomManager.cs" />
+    <Compile Include="Services\FriendService.cs" />
     <Compile Include="Services\MessageManager.cs" />
     <Compile Include="Services\SignalRService.cs" />
+    <Compile Include="UserCard.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserCard.Designer.cs">
+      <DependentUpon>UserCard.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="forgot.resx">
       <DependentUpon>forgot.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="friend_list.resx">
+      <DependentUpon>friend_list.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="home.resx">
       <DependentUpon>home.cs</DependentUpon>

@@ -40,6 +40,7 @@
             this.pnlChatMessages = new System.Windows.Forms.FlowLayoutPanel();
             this.chatTitleLabel = new System.Windows.Forms.Label();
             this.txtCurrentChatroomId = new System.Windows.Forms.TextBox();
+            this.btnFriend = new System.Windows.Forms.Button();
             this.pnlLeft.SuspendLayout();
             this.userStatusPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.userProfilePicture)).BeginInit();
@@ -100,6 +101,7 @@
             // 
             this.userStatusPanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(245)))), ((int)(((byte)(245)))));
             this.userStatusPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.userStatusPanel.Controls.Add(this.btnFriend);
             this.userStatusPanel.Controls.Add(this.userStatusLabel);
             this.userStatusPanel.Controls.Add(this.txtCurrentUserId);
             this.userStatusPanel.Controls.Add(this.userProfilePicture);
@@ -213,6 +215,19 @@
             this.txtCurrentChatroomId.TabIndex = 8;
             this.txtCurrentChatroomId.Visible = false;
             // 
+            // btnFriend
+            // 
+            this.btnFriend.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(111)))), ((int)(((byte)(111)))));
+            this.btnFriend.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnFriend.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.btnFriend.Location = new System.Drawing.Point(190, 0);
+            this.btnFriend.Name = "btnFriend";
+            this.btnFriend.Size = new System.Drawing.Size(104, 28);
+            this.btnFriend.TabIndex = 8;
+            this.btnFriend.Text = "Friend";
+            this.btnFriend.UseVisualStyleBackColor = false;
+            this.btnFriend.Click += new System.EventHandler(this.btnFriend_Click);
+            // 
             // home
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -255,5 +270,6 @@
         private System.Windows.Forms.FlowLayoutPanel pnlChatMessages;
         private System.Windows.Forms.Label chatTitleLabel;
         private System.Windows.Forms.TextBox txtCurrentChatroomId;
+        private System.Windows.Forms.Button btnFriend;
     }
 }
