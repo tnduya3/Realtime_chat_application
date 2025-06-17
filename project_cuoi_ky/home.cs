@@ -28,7 +28,7 @@ namespace project_cuoi_ky
 
         // User ID và Chatroom ID hiện tại
         private int _currentUserId = 1;
-        private int _currentChatroomId = 1;
+        private int _currentChatroomId;
         
         public home()
         {
@@ -48,7 +48,7 @@ namespace project_cuoi_ky
             AddTooltips();
 
             // Load chatrooms
-            LoadChatrooms();
+            _ = LoadChatrooms();
         }        
         
         private void InitializeServices()
@@ -216,7 +216,9 @@ namespace project_cuoi_ky
             {
                 MessageBox.Show($"Unexpected error: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-        }        // Xử lý khi Form đóng để ngắt kết nối SignalR
+        }        
+        
+        // Xử lý khi Form đóng để ngắt kết nối SignalR
         private async void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             try
@@ -259,7 +261,9 @@ namespace project_cuoi_ky
             {
                 _messageManager.AddSystemMessage($"Error during form load: {ex.Message}");
             }        // Load chatrooms từ API
-        }        private async Task LoadChatrooms()
+        }        
+        
+        private async Task LoadChatrooms()
         {
             try
             {
@@ -556,6 +560,18 @@ namespace project_cuoi_ky
             tooltip.SetToolTip(userStatusLabel, "Click to refresh chatrooms\nDouble-click to retry if error");
             tooltip.SetToolTip(txtSearchChatrooms, "Search your chatrooms");
             tooltip.SetToolTip(btnSendMessage, "Send message (or press Enter)");
+        }        private void btnFriend_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                friend_list friendForm = new friend_list();
+                friendForm.ShowDialog(); // Show as modal dialog
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error opening friend manager: {ex.Message}", "Error", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }
