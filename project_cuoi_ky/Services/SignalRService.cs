@@ -130,6 +130,44 @@ namespace project_cuoi_ky.Services
             }
         }
 
+        public async Task SendMessageNotificationAsync(int recipientUserId, int senderId, string senderName, int chatroomId, string messageContent, int messageId)
+        {
+            try
+            {
+                if (IsConnected)
+                {
+                    await _hubConnection.InvokeAsync("SendNotificationToUser", recipientUserId, senderId, senderName, chatroomId, messageContent, messageId);
+                }
+                else
+                {
+                    throw new InvalidOperationException("SignalR not connected");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error sending notification via SignalR: {ex.Message}", ex);
+            }
+        }
+
+        public async Task SendChatroomNotificationAsync(int chatroomId, int senderId, string senderName, string messageContent, int messageId)
+        {
+            try
+            {
+                if (IsConnected)
+                {
+                    await _hubConnection.InvokeAsync("SendChatroomNotification", chatroomId, senderId, senderName, messageContent, messageId);
+                }
+                else
+                {
+                    throw new InvalidOperationException("SignalR not connected");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error sending chatroom notification via SignalR: {ex.Message}", ex);
+            }
+        }
+
         public async Task DisconnectAsync()
         {
             try

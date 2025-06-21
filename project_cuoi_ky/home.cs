@@ -25,6 +25,7 @@ namespace project_cuoi_ky
         private ApiService _apiService;
         private ChatroomManager _chatroomManager;
         private MessageManager _messageManager;
+        private ToastManager _toastManager;
 
         // User ID và Chatroom ID hiện tại
         private int _currentUserId = 1;
@@ -41,11 +42,13 @@ namespace project_cuoi_ky
             InitializeServices();
               // Đặt các giá trị vào UI
             UpdateUserDisplayInfo();
-            txtCurrentChatroomId.Text = _currentChatroomId.ToString();
             this.FormClosing += MainForm_FormClosing;
 
             // Add tooltips
             AddTooltips();
+            
+            // Add test event handler for toast notification
+            chatTitleLabel.DoubleClick += chatTitleLabel_DoubleClick;
 
             // Load chatrooms
             _ = LoadChatrooms();
@@ -73,6 +76,10 @@ namespace project_cuoi_ky
             _messageManager = new MessageManager(pnlChatMessages, _currentUserId);
             _messageManager.StatusChanged += OnMessageManagerStatusChanged;
             
+            // Initialize toast manager
+            _toastManager = new ToastManager(this);
+            _toastManager.ToastClicked += OnToastClicked;
+            
             // Start SignalR connection
             _ = Task.Run(async () => await _signalRService.InitializeAsync());
         }
@@ -82,15 +89,59 @@ namespace project_cuoi_ky
         {
             this.Invoke((MethodInvoker)delegate
             {
+                // Add message to display
                 _messageManager.AddMessageToDisplay(messageData.SenderName, messageData.content, messageData.createdAt, messageData.senderId != _currentUserId);
+                  // If this message is from someone else, handle notifications
+                if (messageData.senderId != _currentUserId)
+                {
+                    // If app is not focused or message is from different chatroom, show notification
+                    bool showNotification = !this.Focused || messageData.chatRoomId != _currentChatroomId;
+                    
+                    if (showNotification)
+                    {
+                        var shortContent = messageData.content.Length > 50 ? 
+                            messageData.content.Substring(0, 50) + "..." : 
+                            messageData.content;
+                            
+                        // Get chatroom name for notification
+                        var chatroom = _chatroomManager.GetChatroomById(messageData.chatRoomId);
+                        var chatroomName = chatroom?.name ?? $"Chatroom {messageData.chatRoomId}";
+                        
+                        // Show toast notification
+                        _toastManager.ShowToast(
+                            $"New message from {messageData.SenderName}",
+                            $"[{chatroomName}] {shortContent}",
+                            messageData.chatRoomId.ToString()
+                        );
+                        
+                        _messageManager.AddSystemMessage($"📱 [{chatroomName}] {messageData.SenderName}: {shortContent}");
+                        FlashWindow();
+                    }
+                }
             });
         }
-
+        
         private void OnSignalRNotificationReceived(string type, string title, string body)
         {
             this.Invoke((MethodInvoker)delegate
             {
-                MessageBox.Show(body, title, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                // Check if this is a message notification and if we're not in the current chatroom
+                if (type == "new_message" || type == "chatroom_message")
+                {
+                    // Show a subtle notification in the message area instead of popup
+                    _messageManager.AddSystemMessage($"📢 {title}: {body}");
+                    
+                    // Flash the window title if app is not focused
+                    if (!this.Focused)
+                    {
+                        FlashWindow();
+                    }
+                }
+                else
+                {
+                    // For other notification types, still show MessageBox
+                    MessageBox.Show(body, title, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
             });
         }
 
@@ -130,17 +181,38 @@ namespace project_cuoi_ky
                 }
             });
         }
-
+        
+        private void OnToastClicked(object sender, string chatroomId)
+        {
+            // When toast is clicked, switch to the relevant chatroom
+            if (int.TryParse(chatroomId, out int chatId))
+            {
+                // Bring window to front
+                this.WindowState = FormWindowState.Normal;
+                this.BringToFront();
+                this.Activate();
+                
+                // Select the chatroom
+                _chatroomManager.SelectChatroom(chatId);
+            }
+        }
+        
         // Chatroom Manager Event Handlers
         private void OnChatroomSelected(int chatroomId)
         {
             _currentChatroomId = chatroomId;
-            txtCurrentChatroomId.Text = _currentChatroomId.ToString();
             
             var selectedChatroom = _chatroomManager.GetChatroomById(chatroomId);
             if (selectedChatroom != null)
             {
                 chatTitleLabel.Text = selectedChatroom.name;
+                // Show edit button when a chatroom is selected
+                btnEditChatroom.Visible = true;
+            }
+            else
+            {
+                // Hide edit button when no chatroom is selected
+                btnEditChatroom.Visible = false;
             }
             
             // Clear messages and load new ones
@@ -162,7 +234,9 @@ namespace project_cuoi_ky
         {
             // Could log to console or show in status bar
             Console.WriteLine($"MessageManager: {status}");
-        }// Enhanced event handler for sending messages with better validation
+        }
+        
+        // Enhanced event handler for sending messages with better validation
         private async void btnSendMessage_Click(object sender, EventArgs e)
         {
             try
@@ -192,8 +266,29 @@ namespace project_cuoi_ky
                 {
                     // Try SignalR first
                     await _signalRService.SendMessageAsync(_currentUserId, _currentChatroomId, messageContent);
+                    
+                    // Send notification to all chatroom members after successful message
+                    try
+                    {
+                        var currentChatroom = _chatroomManager.GetChatroomById(_currentChatroomId);
+                        var senderName = Properties.Settings.Default.DisplayName ?? Properties.Settings.Default.UserEmail ?? "User";
+                        
+                        // Send chatroom notification (broadcast to all members except sender)
+                        await _signalRService.SendChatroomNotificationAsync(
+                            _currentChatroomId, 
+                            _currentUserId, 
+                            senderName, 
+                            messageContent, 
+                            0 // messageId - we don't have this from SignalR, using 0 as placeholder
+                        );
+                    }
+                    catch (Exception notifyEx)
+                    {
+                        // Log notification error but don't fail the message sending
+                        _messageManager.AddSystemMessage($"Message sent but notification failed: {notifyEx.Message}");
+                    }
+                    
                     txtMessageInput.Clear();
-                    _messageManager.AddSystemMessage("Message sent via SignalR");
                 }
                 catch (Exception)
                 {
@@ -203,6 +298,28 @@ namespace project_cuoi_ky
                     
                     if (success)
                     {
+                        // Send notification after successful API message
+                        try
+                        {
+                            var senderName = Properties.Settings.Default.DisplayName ?? Properties.Settings.Default.UserEmail ?? "User";
+                            
+                            // Send chatroom notification via SignalR if connection is available
+                            if (_signalRService.IsConnected)
+                            {
+                                await _signalRService.SendChatroomNotificationAsync(
+                                    _currentChatroomId, 
+                                    _currentUserId, 
+                                    senderName, 
+                                    messageContent, 
+                                    0 // messageId - placeholder
+                                );
+                            }
+                        }
+                        catch (Exception notifyEx)
+                        {
+                            _messageManager.AddSystemMessage($"Message sent but notification failed: {notifyEx.Message}");
+                        }
+                        
                         txtMessageInput.Clear();
                         _messageManager.AddSystemMessage("Message sent via API successfully.");
                     }
@@ -223,6 +340,7 @@ namespace project_cuoi_ky
         {
             try
             {
+                _toastManager?.ClearAllToasts();
                 await _signalRService?.DisconnectAsync();
                 _apiService?.Dispose();
             }
@@ -254,13 +372,13 @@ namespace project_cuoi_ky
                     _messageManager.LoadMessages(messages);
                     
                     // Join chatroom
-                    await _apiService.JoinChatroom(_currentChatroomId, _currentUserId);
+                    // await _apiService.JoinChatroom(_currentChatroomId, _currentUserId);
                 }
             }
             catch (Exception ex)
             {
                 _messageManager.AddSystemMessage($"Error during form load: {ex.Message}");
-            }        // Load chatrooms từ API
+            }
         }        
         
         private async Task LoadChatrooms()
@@ -270,10 +388,7 @@ namespace project_cuoi_ky
                 // Show loading status
                 userStatusLabel.Text = "Loading chatrooms...";
                 userStatusLabel.ForeColor = System.Drawing.Color.Blue;
-                
-                // Debug: Show API URL being called
-                _messageManager.AddSystemMessage($"Calling API: /api/Chatrooms/user/{_currentUserId}");
-                
+                                
                 var chatroomsResponse = await _apiService.GetUserChatrooms(_currentUserId);
                 
                 if (chatroomsResponse?.Chatrooms?.Count > 0)
@@ -281,7 +396,6 @@ namespace project_cuoi_ky
                     _chatroomManager.LoadChatrooms(chatroomsResponse.Chatrooms);
                     userStatusLabel.Text = $"{chatroomsResponse.Chatrooms.Count} chatrooms loaded";
                     userStatusLabel.ForeColor = System.Drawing.Color.Green;
-                    _messageManager.AddSystemMessage($"Successfully loaded {chatroomsResponse.Chatrooms.Count} chatrooms");
                 }
                 else
                 {
@@ -299,9 +413,6 @@ namespace project_cuoi_ky
                 userStatusLabel.Text = "Error loading chatrooms";
                 userStatusLabel.ForeColor = System.Drawing.Color.Red;
             }
-        
-                //userStatusLabel.Text = "Error loading chatrooms";
-                //userStatusLabel.ForeColor = System.Drawing.Color.Red;
         }   
         
         // Load messages for a specific chatroom
@@ -314,7 +425,6 @@ namespace project_cuoi_ky
                 if (messages?.Count > 0)
                 {
                     _messageManager.LoadMessages(messages);
-                    _messageManager.AddSystemMessage($"Loaded {messages.Count} messages for chatroom {chatroomId}");
                 }
                 else
                 {
@@ -543,15 +653,14 @@ namespace project_cuoi_ky
         // Handle user profile picture double-click for logout
         private void userProfilePicture_DoubleClick(object sender, EventArgs e)
         {
-            var result = MessageBox.Show("Do you want to logout?", "Logout Confirmation", 
-                MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-            
-            if (result == DialogResult.Yes)
+            var result = new logout_form().ShowDialog();
+
+            if (result == DialogResult.OK)
             {
                 LogoutUser();
             }
-        }
-
+        }        
+        
         // Add tooltips for better UX
         private void AddTooltips()
         {
@@ -560,7 +669,11 @@ namespace project_cuoi_ky
             tooltip.SetToolTip(userStatusLabel, "Click to refresh chatrooms\nDouble-click to retry if error");
             tooltip.SetToolTip(txtSearchChatrooms, "Search your chatrooms");
             tooltip.SetToolTip(btnSendMessage, "Send message (or press Enter)");
-        }        private void btnFriend_Click(object sender, EventArgs e)
+            tooltip.SetToolTip(btnEditChatroom, "Edit chatroom name and description");
+            tooltip.SetToolTip(chatTitleLabel, "Double-click to view chatroom members");
+        }
+        
+        private void btnFriend_Click(object sender, EventArgs e)
         {
             try
             {
@@ -572,6 +685,203 @@ namespace project_cuoi_ky
                 MessageBox.Show($"Error opening friend manager: {ex.Message}", "Error", 
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private async void btnEditChatroom_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (_currentChatroomId <= 0)
+                {
+                    MessageBox.Show("Please select a chatroom first.", "No Chatroom Selected", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                
+                // Get current chatroom info
+                var currentChatroom = _chatroomManager.GetChatroomById(_currentChatroomId);
+                if (currentChatroom == null)
+                {
+                    MessageBox.Show("Chatroom information not found.", "Error", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                
+                // Open edit form
+                using (var editForm = new edit_chatroom(_currentChatroomId, currentChatroom.name, currentChatroom.description ?? ""))
+                {
+                    if (editForm.ShowDialog() == DialogResult.OK && editForm.ChangesSaved)
+                    {
+                        var newName = editForm.ChatroomName;
+                        var newDescription = editForm.Description;
+                        
+                        // Call API to update chatroom
+                        bool success = await _apiService.UpdateChatroom(_currentChatroomId, newName, newDescription, _currentUserId);
+                        
+                        if (success)
+                        {
+                            // Update UI
+                            chatTitleLabel.Text = newName;
+                            
+                            // Refresh chatrooms list
+                            await LoadChatrooms();
+                        }
+                        else
+                        {
+                            MessageBox.Show("Failed to update chatroom. Please try again.", "Error", 
+                                MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error editing chatroom: {ex.Message}", "Error", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        // Flash window to notify user of new messages
+        private void FlashWindow()
+        {
+            try
+            {
+                // Simple way to flash the window - change title temporarily
+                string originalTitle = this.Text;
+                this.Text = "💬 New Message - " + originalTitle;
+                
+                // Reset title after 2 seconds
+                var timer = new Timer();
+                timer.Interval = 2000;
+                timer.Tick += (s, e) =>
+                {
+                    this.Text = originalTitle;
+                    timer.Stop();
+                    timer.Dispose();
+                };
+                timer.Start();
+                
+                // Also flash the taskbar if possible
+                this.WindowState = FormWindowState.Minimized;
+                this.WindowState = FormWindowState.Normal;
+            }
+            catch (Exception ex)
+            {
+                // If flashing fails, just log it
+                Console.WriteLine($"Error flashing window: {ex.Message}");
+            }
+        }        
+        
+        // Show participants when double-clicking chatroom title
+        private async void chatTitleLabel_DoubleClick(object sender, EventArgs e)
+        {
+            try
+            {
+                if (_currentChatroomId <= 0)
+                {
+                    MessageBox.Show("Please select a chatroom first.", "No Chatroom Selected", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+                
+                var currentChatroom = _chatroomManager.GetChatroomById(_currentChatroomId);
+                if (currentChatroom == null)
+                {
+                    MessageBox.Show("Chatroom information not found.", "Error", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                
+                // Show loading cursor
+                this.Cursor = Cursors.WaitCursor;
+                
+                // Get participants from API
+                var participants = await _apiService.GetChatroomParticipants(_currentChatroomId);
+                
+                // Reset cursor
+                this.Cursor = Cursors.Default;
+                  // Show participants form
+                using (var participantsForm = new ParticipantsListForm(currentChatroom.name, participants, _currentChatroomId, _currentUserId))
+                {
+                    // Handle refresh request from participants form
+                    participantsForm.RefreshRequested += async (s, args) =>
+                    {
+                        try
+                        {
+                            participantsForm.Cursor = Cursors.WaitCursor;
+                            var refreshedParticipants = await _apiService.GetChatroomParticipants(_currentChatroomId);
+                            participantsForm.UpdateParticipants(refreshedParticipants);
+                            participantsForm.Cursor = Cursors.Default;
+                        }
+                        catch (Exception ex)
+                        {
+                            participantsForm.Cursor = Cursors.Default;
+                            MessageBox.Show($"Error refreshing participants: {ex.Message}", "Error", 
+                                MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    };
+                    
+                    // Handle add user request from participants form
+                    participantsForm.AddUserRequested += async (s, args) =>
+                    {
+                        try
+                        {
+                            participantsForm.Cursor = Cursors.WaitCursor;
+                            
+                            bool success = await _apiService.AddUserToChatroom(
+                                args.ChatroomId, 
+                                args.UserId, 
+                                args.AddedBy, 
+                                "member" // Default role
+                            );
+                            
+                            participantsForm.Cursor = Cursors.Default;
+                            
+                            if (success)
+                            {
+                                MessageBox.Show($"User {args.UserId} has been added to the chatroom successfully!", "Success", 
+                                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                
+                                // Clear the input and refresh the list
+                                participantsForm.ClearAddUserInput();
+                                
+                                // Auto refresh participants list
+                                var refreshedParticipants = await _apiService.GetChatroomParticipants(_currentChatroomId);
+                                participantsForm.UpdateParticipants(refreshedParticipants);
+                            }
+                            else
+                            {
+                                MessageBox.Show("Failed to add user to chatroom. Please check if the User ID exists and try again.", "Error", 
+                                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            participantsForm.Cursor = Cursors.Default;
+                            MessageBox.Show($"Error adding user: {ex.Message}", "Error", 
+                                MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    };
+                    
+                    participantsForm.ShowDialog();
+                }
+            }
+            catch (Exception ex)
+            {
+                this.Cursor = Cursors.Default;
+                MessageBox.Show($"Error loading participants: {ex.Message}", "Error", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        // Test method for toast notification (for development - can be called from other events)
+        private void TestToastNotification()
+        {
+            _toastManager.ShowToast(
+                "Test Notification", 
+                "This is a test message to verify toast notifications are working correctly!",
+                _currentChatroomId.ToString()
+            );
         }
     }
 }

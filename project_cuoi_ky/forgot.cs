@@ -47,7 +47,9 @@ namespace project_cuoi_ky
         public forgot()
         {
             InitializeComponent();
-        }        private async void btnForgotPassword_Click(object sender, EventArgs e)
+        }        
+        
+        private async void btnForgotPassword_Click(object sender, EventArgs e)
         {
             string email = txtForgotPasswordEmail.Text.Trim();
 

@@ -26,11 +26,13 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(home));
             this.pnlLeft = new System.Windows.Forms.Panel();
             this.pnlChatroomList = new System.Windows.Forms.FlowLayoutPanel();
             this.txtSearchChatrooms = new System.Windows.Forms.TextBox();
             this.contactsLabel = new System.Windows.Forms.Label();
             this.userStatusPanel = new System.Windows.Forms.Panel();
+            this.btnFriend = new System.Windows.Forms.Button();
             this.userStatusLabel = new System.Windows.Forms.Label();
             this.txtCurrentUserId = new System.Windows.Forms.Label();
             this.userProfilePicture = new System.Windows.Forms.PictureBox();
@@ -38,9 +40,8 @@
             this.btnSendMessage = new System.Windows.Forms.Button();
             this.txtMessageInput = new System.Windows.Forms.TextBox();
             this.pnlChatMessages = new System.Windows.Forms.FlowLayoutPanel();
+            this.btnEditChatroom = new System.Windows.Forms.Button();
             this.chatTitleLabel = new System.Windows.Forms.Label();
-            this.txtCurrentChatroomId = new System.Windows.Forms.TextBox();
-            this.btnFriend = new System.Windows.Forms.Button();
             this.pnlLeft.SuspendLayout();
             this.userStatusPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.userProfilePicture)).BeginInit();
@@ -111,6 +112,19 @@
             this.userStatusPanel.Size = new System.Drawing.Size(298, 32);
             this.userStatusPanel.TabIndex = 6;
             // 
+            // btnFriend
+            // 
+            this.btnFriend.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(111)))), ((int)(((byte)(111)))));
+            this.btnFriend.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnFriend.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.btnFriend.Location = new System.Drawing.Point(163, -3);
+            this.btnFriend.Name = "btnFriend";
+            this.btnFriend.Size = new System.Drawing.Size(139, 40);
+            this.btnFriend.TabIndex = 8;
+            this.btnFriend.Text = "Friend";
+            this.btnFriend.UseVisualStyleBackColor = false;
+            this.btnFriend.Click += new System.EventHandler(this.btnFriend_Click);
+            // 
             // userStatusLabel
             // 
             this.userStatusLabel.AutoSize = true;
@@ -153,8 +167,8 @@
             this.pnlRight.Controls.Add(this.btnSendMessage);
             this.pnlRight.Controls.Add(this.txtMessageInput);
             this.pnlRight.Controls.Add(this.pnlChatMessages);
+            this.pnlRight.Controls.Add(this.btnEditChatroom);
             this.pnlRight.Controls.Add(this.chatTitleLabel);
-            this.pnlRight.Controls.Add(this.txtCurrentChatroomId);
             this.pnlRight.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlRight.Location = new System.Drawing.Point(300, 0);
             this.pnlRight.Name = "pnlRight";
@@ -196,6 +210,22 @@
             this.pnlChatMessages.Size = new System.Drawing.Size(269, 369);
             this.pnlChatMessages.TabIndex = 9;
             // 
+            // btnEditChatroom
+            // 
+            this.btnEditChatroom.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(111)))), ((int)(((byte)(111)))));
+            this.btnEditChatroom.FlatAppearance.BorderSize = 0;
+            this.btnEditChatroom.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnEditChatroom.Font = new System.Drawing.Font("Segoe UI", 8F, System.Drawing.FontStyle.Bold);
+            this.btnEditChatroom.ForeColor = System.Drawing.Color.White;
+            this.btnEditChatroom.Location = new System.Drawing.Point(217, 9);
+            this.btnEditChatroom.Name = "btnEditChatroom";
+            this.btnEditChatroom.Size = new System.Drawing.Size(60, 25);
+            this.btnEditChatroom.TabIndex = 5;
+            this.btnEditChatroom.Text = "Edit";
+            this.btnEditChatroom.UseVisualStyleBackColor = false;
+            this.btnEditChatroom.Visible = false;
+            this.btnEditChatroom.Click += new System.EventHandler(this.btnEditChatroom_Click);
+            // 
             // chatTitleLabel
             // 
             this.chatTitleLabel.AutoSize = true;
@@ -207,27 +237,6 @@
             this.chatTitleLabel.TabIndex = 4;
             this.chatTitleLabel.Text = "Select a chatroom";
             // 
-            // txtCurrentChatroomId
-            // 
-            this.txtCurrentChatroomId.Location = new System.Drawing.Point(169, 13);
-            this.txtCurrentChatroomId.Name = "txtCurrentChatroomId";
-            this.txtCurrentChatroomId.Size = new System.Drawing.Size(100, 20);
-            this.txtCurrentChatroomId.TabIndex = 8;
-            this.txtCurrentChatroomId.Visible = false;
-            // 
-            // btnFriend
-            // 
-            this.btnFriend.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(111)))), ((int)(((byte)(111)))));
-            this.btnFriend.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnFriend.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
-            this.btnFriend.Location = new System.Drawing.Point(190, 0);
-            this.btnFriend.Name = "btnFriend";
-            this.btnFriend.Size = new System.Drawing.Size(104, 28);
-            this.btnFriend.TabIndex = 8;
-            this.btnFriend.Text = "Friend";
-            this.btnFriend.UseVisualStyleBackColor = false;
-            this.btnFriend.Click += new System.EventHandler(this.btnFriend_Click);
-            // 
             // home
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -237,6 +246,7 @@
             this.Controls.Add(this.pnlRight);
             this.Controls.Add(this.pnlLeft);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "home";
             this.Opacity = 0.9D;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
@@ -266,10 +276,9 @@
         private System.Windows.Forms.PictureBox userProfilePicture;
         private System.Windows.Forms.Panel pnlRight;
         private System.Windows.Forms.Button btnSendMessage;
-        private System.Windows.Forms.TextBox txtMessageInput;
-        private System.Windows.Forms.FlowLayoutPanel pnlChatMessages;
+        private System.Windows.Forms.TextBox txtMessageInput;        private System.Windows.Forms.FlowLayoutPanel pnlChatMessages;
         private System.Windows.Forms.Label chatTitleLabel;
-        private System.Windows.Forms.TextBox txtCurrentChatroomId;
+        private System.Windows.Forms.Button btnEditChatroom;
         private System.Windows.Forms.Button btnFriend;
     }
 }

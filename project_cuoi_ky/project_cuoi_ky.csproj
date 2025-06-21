@@ -230,6 +230,12 @@
     <Compile Include="ChatroomCard.Designer.cs">
       <DependentUpon>ChatroomCard.cs</DependentUpon>
     </Compile>
+    <Compile Include="edit_chatroom.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="edit_chatroom.Designer.cs">
+      <DependentUpon>edit_chatroom.cs</DependentUpon>
+    </Compile>
     <Compile Include="FirebaseAuthService.cs" />
     <Compile Include="forgot.cs">
       <SubType>Form</SubType>
@@ -255,6 +261,12 @@
     <Compile Include="login_form.Designer.cs">
       <DependentUpon>login_form.cs</DependentUpon>
     </Compile>
+    <Compile Include="logout_form.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="logout_form.Designer.cs">
+      <DependentUpon>logout_form.cs</DependentUpon>
+    </Compile>
     <Compile Include="MessageBubbleControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -265,6 +277,12 @@
     <Compile Include="Models\DataModels.cs" />
     <Compile Include="Models\FriendModels.cs" />
     <Compile Include="Models\UserModels.cs" />
+    <Compile Include="notification.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="notification.Designer.cs">
+      <DependentUpon>notification.cs</DependentUpon>
+    </Compile>
     <Compile Include="obj\Debug\.NETFramework,Version=v4.7.2.AssemblyAttributes.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -279,12 +297,37 @@
     <Compile Include="Services\FriendService.cs" />
     <Compile Include="Services\MessageManager.cs" />
     <Compile Include="Services\SignalRService.cs" />
+    <Compile Include="Services\ToastManager.cs" />
+    <Compile Include="startchat.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="startchat.Designer.cs">
+      <DependentUpon>startchat.cs</DependentUpon>
+    </Compile>
+    <Compile Include="StartChatForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ToastNotification.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ToastNotification.Designer.cs">
+      <DependentUpon>ToastNotification.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ParticipantsListForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ParticipantsListForm.Designer.cs">
+      <DependentUpon>ParticipantsListForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="UserCard.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="UserCard.Designer.cs">
       <DependentUpon>UserCard.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="edit_chatroom.resx">
+      <DependentUpon>edit_chatroom.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="forgot.resx">
       <DependentUpon>forgot.cs</DependentUpon>
     </EmbeddedResource>
@@ -297,8 +340,21 @@
     <EmbeddedResource Include="login_form.resx">
       <DependentUpon>login_form.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="logout_form.resx">
+      <DependentUpon>logout_form.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MessageBubbleControl.resx">
       <DependentUpon>MessageBubbleControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="notification.resx">
+      <DependentUpon>notification.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ToastNotification.resx">
+      <DependentUpon>ToastNotification.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ParticipantsListForm.resx">
+      <DependentUpon>ParticipantsListForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="obj\Debug\project_cuoi_ky.forgot.resources" />
     <EmbeddedResource Include="obj\Debug\project_cuoi_ky.home.resources" />
@@ -317,6 +373,15 @@
     </Compile>
     <EmbeddedResource Include="register_form.resx">
       <DependentUpon>register_form.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="startchat.resx">
+      <DependentUpon>startchat.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="StartChatForm.resx">
+      <DependentUpon>StartChatForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UserCard.resx">
+      <DependentUpon>UserCard.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="bin\Debug\Firebase\realtimechatapplicationg10-firebase-adminsdk-fbsvc-cef6dbf2e4.json" />
     <None Include="bin\Debug\project_cuoi_ky.exe.config" />

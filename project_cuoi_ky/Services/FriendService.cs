@@ -340,6 +340,43 @@ namespace project_cuoi_ky.Services
             }
         }
 
+        // Start chat with friend
+        public async Task<bool> StartChatWithFriend(int userId, int friendId, string initialMessage)
+        {
+            try
+            {
+                var requestBody = new
+                {
+                    initialMessage = initialMessage
+                };
+
+                var jsonString = JsonSerializer.Serialize(requestBody);
+                var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
+
+                System.Diagnostics.Debug.WriteLine($"Starting chat: userId={userId}, friendId={friendId}");
+                System.Diagnostics.Debug.WriteLine($"API URL: {_apiBaseUrl}Friends/{userId}/start-chat/{friendId}");
+                System.Diagnostics.Debug.WriteLine($"Request payload: {jsonString}");
+
+                var response = await _httpClient.PostAsync($"{_apiBaseUrl}Friends/{userId}/start-chat/{friendId}", content);
+                
+                System.Diagnostics.Debug.WriteLine($"Start chat response: {response.StatusCode}");
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    System.Diagnostics.Debug.WriteLine($"Start chat error response: {errorContent}");
+                }
+                
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error starting chat: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                return false;
+            }
+        }
+
         public void Dispose()
         {
             _httpClient?.Dispose();

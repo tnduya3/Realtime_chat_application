@@ -56,7 +56,9 @@ namespace project_cuoi_ky
         {
             this.DialogResult = DialogResult.Cancel; // Đặt DialogResult thành Cancel
             this.Close(); // Đóng form
-        }        private async void btnRegister_Click(object sender, EventArgs e)
+        }        
+        
+        private async void btnRegister_Click(object sender, EventArgs e)
         {
             string email = txtRegisterEmail.Text.Trim();
             string password = txtRegisterPassword.Text;
@@ -127,9 +129,7 @@ namespace project_cuoi_ky
                     var registerResponse = JsonConvert.DeserializeObject<RegisterResponse>(responseContent);
                     
                     if (registerResponse != null && registerResponse.success)
-                    {
-                        MessageBox.Show("Đăng ký thành công!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        
+                    {                        
                         // Đóng form register và quay về login
                         this.DialogResult = DialogResult.OK;
                         this.Close();

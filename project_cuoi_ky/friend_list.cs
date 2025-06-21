@@ -400,8 +400,12 @@ namespace project_cuoi_ky
                             await LoadAllData(); // Refresh data
                         }
                         break;
+                        
+                    case "start_chat":
+                        await HandleStartChat(args.friendId);
+                        break;
                 }
-                  if (!success && args.action != "unfriend" && args.action != "accept_request")
+                  if (!success && args.action != "unfriend" && args.action != "accept_request" && args.action != "start_chat")
                 {
                     MessageBox.Show("Operation failed. Please try again.", "Error", 
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -452,6 +456,72 @@ namespace project_cuoi_ky
         {
             _friendService?.Dispose();
             base.OnFormClosing(e);
+        }
+
+        private void btnQuit_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private async Task HandleStartChat(int friendId)
+        {
+            try
+            {
+                // Find friend info
+                var friendInfo = _allUsers.FirstOrDefault(u => u.userId == friendId);
+                if (friendInfo == null)
+                {
+                    // Try to find in friends list
+                    var friend = _friends.FirstOrDefault(f => f.userId == friendId);
+                    if (friend != null)
+                    {
+                        friendInfo = new ApiUserInfo
+                        {
+                            userId = friend.userId,
+                            userName = friend.userName,
+                            email = friend.email
+                        };
+                    }
+                }
+                
+                if (friendInfo == null)
+                {
+                    MessageBox.Show("Friend information not found.", "Error", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                
+                // Open start chat form
+                using (var startChatForm = new startchat(friendInfo))
+                {
+                    if (startChatForm.ShowDialog() == DialogResult.OK && startChatForm.MessageSent)
+                    {
+                        var initialMessage = startChatForm.InitialMessage;
+                        
+                        // Call API to start chat
+                        bool success = await _friendService.StartChatWithFriend(_currentUserId, friendId, initialMessage);
+                        
+                        if (success)
+                        {
+                            MessageBox.Show($"Chat started successfully with {friendInfo.userName}!", "Success", 
+                                MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            
+                            // Close friend list and return to home form
+                            this.Close();
+                        }
+                        else
+                        {
+                            MessageBox.Show("Failed to start chat. Please try again.", "Error", 
+                                MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error starting chat: {ex.Message}", "Error", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }
