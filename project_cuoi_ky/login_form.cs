@@ -44,7 +44,9 @@ namespace project_cuoi_ky
             public bool emailVerified { get; set; }
             public string createdAt { get; set; }
             public string lastSignInAt { get; set; }
-        }public login()
+        }
+        
+        public login()
         {
             InitializeComponent();
             // Không cần khởi tạo Firebase nữa vì đã chuyển sang sử dụng API
@@ -82,7 +84,7 @@ namespace project_cuoi_ky
             
             btnLogin.Enabled = false; // Vô hiệu hóa nút đăng nhập trong khi đang xử lý
             btnLogin.BackColor = Color.Gray; // Thay đổi màu nút để hiển thị trạng thái đang xử lý
-            btnLogin.Text = "Đang đăng nhập..."; // Thay đổi văn bản nút để hiển thị trạng thái đang xử lý
+            btnLogin.Text = "Processing..."; // Thay đổi văn bản nút để hiển thị trạng thái đang xử lý
 
             try
             {
@@ -118,9 +120,7 @@ namespace project_cuoi_ky
                 {
                     var loginResponse = JsonConvert.DeserializeObject<LoginResponse>(responseContent);
                       if (loginResponse != null && loginResponse.success)
-                    {
-                        MessageBox.Show("Đăng nhập thành công!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        
+                    {                        
                         // Lưu thông tin user vào Properties.Settings
                         Properties.Settings.Default.AccessToken = loginResponse.accessToken ?? "";
                         Properties.Settings.Default.RefreshToken = loginResponse.refreshToken ?? "";

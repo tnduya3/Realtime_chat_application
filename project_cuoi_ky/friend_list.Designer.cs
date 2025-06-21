@@ -39,9 +39,10 @@
             this.tabRequests = new System.Windows.Forms.TabPage();
             this.pnlRequests = new System.Windows.Forms.FlowLayoutPanel();
             this.lblRequestsStatus = new System.Windows.Forms.Label();
-            this.btnRefresh = new System.Windows.Forms.Button();
             this.txtSearch = new System.Windows.Forms.TextBox();
             this.lblTitle = new System.Windows.Forms.Label();
+            this.btnRefresh = new System.Windows.Forms.Button();
+            this.btnQuit = new System.Windows.Forms.Button();
             this.tabControl.SuspendLayout();
             this.tabAllUsers.SuspendLayout();
             this.tabFriends.SuspendLayout();
@@ -89,7 +90,7 @@
             this.lblAllUsersStatus.ForeColor = System.Drawing.Color.Gray;
             this.lblAllUsersStatus.Location = new System.Drawing.Point(6, 10);
             this.lblAllUsersStatus.Name = "lblAllUsersStatus";
-            this.lblAllUsersStatus.Size = new System.Drawing.Size(104, 19);
+            this.lblAllUsersStatus.Size = new System.Drawing.Size(103, 19);
             this.lblAllUsersStatus.TabIndex = 0;
             this.lblAllUsersStatus.Text = "Loading users...";
             // 
@@ -157,27 +158,12 @@
             this.lblRequestsStatus.ForeColor = System.Drawing.Color.Gray;
             this.lblRequestsStatus.Location = new System.Drawing.Point(6, 10);
             this.lblRequestsStatus.Name = "lblRequestsStatus";
-            this.lblRequestsStatus.Size = new System.Drawing.Size(121, 19);
+            this.lblRequestsStatus.Size = new System.Drawing.Size(123, 19);
             this.lblRequestsStatus.TabIndex = 0;
             this.lblRequestsStatus.Text = "Loading requests...";
             // 
-            // btnRefresh
-            // 
-            this.btnRefresh.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(120)))), ((int)(((byte)(215)))));
-            this.btnRefresh.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnRefresh.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.btnRefresh.ForeColor = System.Drawing.Color.White;
-            this.btnRefresh.Location = new System.Drawing.Point(713, 45);
-            this.btnRefresh.Name = "btnRefresh";
-            this.btnRefresh.Size = new System.Drawing.Size(75, 30);
-            this.btnRefresh.TabIndex = 1;
-            this.btnRefresh.Text = "Refresh";
-            this.btnRefresh.UseVisualStyleBackColor = false;
-            this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
-            // 
             // txtSearch
             // 
-            this.txtSearch.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.txtSearch.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.txtSearch.ForeColor = System.Drawing.Color.Gray;
             this.txtSearch.Location = new System.Drawing.Point(12, 50);
@@ -196,22 +182,50 @@
             this.lblTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(111)))), ((int)(((byte)(111)))));
             this.lblTitle.Location = new System.Drawing.Point(12, 15);
             this.lblTitle.Name = "lblTitle";
-            this.lblTitle.Size = new System.Drawing.Size(148, 30);
+            this.lblTitle.Size = new System.Drawing.Size(170, 30);
             this.lblTitle.TabIndex = 3;
             this.lblTitle.Text = "Friend Manager";
+            // 
+            // btnRefresh
+            // 
+            this.btnRefresh.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(111)))), ((int)(((byte)(111)))));
+            this.btnRefresh.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnRefresh.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.btnRefresh.Location = new System.Drawing.Point(623, 50);
+            this.btnRefresh.Name = "btnRefresh";
+            this.btnRefresh.Size = new System.Drawing.Size(158, 36);
+            this.btnRefresh.TabIndex = 8;
+            this.btnRefresh.Text = "Refresh";
+            this.btnRefresh.UseVisualStyleBackColor = false;
+            this.btnRefresh.Click += new System.EventHandler(this.btnRefresh_Click);
+            // 
+            // btnQuit
+            // 
+            this.btnQuit.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(111)))), ((int)(((byte)(111)))));
+            this.btnQuit.Font = new System.Drawing.Font("Yu Gothic UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnQuit.ForeColor = System.Drawing.SystemColors.ButtonHighlight;
+            this.btnQuit.Location = new System.Drawing.Point(715, 8);
+            this.btnQuit.Name = "btnQuit";
+            this.btnQuit.Size = new System.Drawing.Size(73, 36);
+            this.btnQuit.TabIndex = 9;
+            this.btnQuit.Text = "Quit";
+            this.btnQuit.UseVisualStyleBackColor = false;
+            this.btnQuit.Click += new System.EventHandler(this.btnQuit_Click);
             // 
             // friend_list
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.btnRefresh);
+            this.Controls.Add(this.btnQuit);
             this.Controls.Add(this.lblTitle);
             this.Controls.Add(this.txtSearch);
-            this.Controls.Add(this.btnRefresh);
             this.Controls.Add(this.tabControl);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.MaximizeBox = false;
             this.Name = "friend_list";
+            this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Friend Manager";
             this.Load += new System.EventHandler(this.friend_list_Load);
@@ -239,8 +253,9 @@
         private System.Windows.Forms.Label lblAllUsersStatus;
         private System.Windows.Forms.Label lblFriendsStatus;
         private System.Windows.Forms.Label lblRequestsStatus;
-        private System.Windows.Forms.Button btnRefresh;
         private System.Windows.Forms.TextBox txtSearch;
         private System.Windows.Forms.Label lblTitle;
+        private System.Windows.Forms.Button btnRefresh;
+        private System.Windows.Forms.Button btnQuit;
     }
 }

@@ -71,7 +71,7 @@ namespace project_cuoi_ky.Services
                 {
                     Width = Math.Min(300, containerPanel.Width - 40), // Max width for bubbles
                     Height = 60, // Will be adjusted based on content
-                    BackColor = isMyMessage ? Color.FromArgb(0, 120, 215) : Color.FromArgb(226, 111, 111)
+                    BackColor = isMyMessage ? Color.FromArgb(0, 0, 0) : Color.FromArgb(226, 111, 111)
                 };
                 
                 // Create sender label
@@ -163,8 +163,8 @@ namespace project_cuoi_ky.Services
                 var messagePanel = new Panel
                 {
                     Width = Math.Min(300, containerPanel.Width - 40), // Max width for bubbles
-                    Height = 60, // Will be adjusted based on content
-                    BackColor = isMyMessage ? Color.FromArgb(0, 120, 215) : Color.FromArgb(226, 111, 111)
+                    Height = 60,
+                    BackColor = isMyMessage ? Color.FromArgb(226, 111, 111) : Color.FromArgb(250, 250, 250)
                 };
                 
                 // Create sender label

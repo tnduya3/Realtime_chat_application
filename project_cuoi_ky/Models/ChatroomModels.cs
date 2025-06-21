@@ -23,7 +23,7 @@ namespace project_cuoi_ky
         //     Members = new List<int>();
         // }
     }
-    
+      
     public class GetChatroomsResponse
     {
         public List<ChatroomInfo> Chatrooms { get; set; }
@@ -32,5 +32,12 @@ namespace project_cuoi_ky
         {
             Chatrooms = new List<ChatroomInfo>();
         }
+    }
+    
+    public class ChatroomParticipant
+    {
+        public int userId { get; set; }
+        public string userName { get; set; } = "";
+        public string role { get; set; } = "";
     }
 }

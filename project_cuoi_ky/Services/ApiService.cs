@@ -252,6 +252,48 @@ namespace project_cuoi_ky.Services
             }
         }
 
+        // Get chatroom participants with detailed information
+        public async Task<List<ChatroomParticipant>> GetChatroomParticipants(int chatroomId)
+        {
+            try
+            {
+                var url = $"{_apiBaseUrl}Chatrooms/{chatroomId}/participants";
+                var response = await _httpClient.GetAsync(url);
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    var jsonString = await response.Content.ReadAsStringAsync();
+                    
+                    System.Diagnostics.Debug.WriteLine($"Participants API Response from {url}:");
+                    System.Diagnostics.Debug.WriteLine(jsonString);
+                    
+                    if (string.IsNullOrWhiteSpace(jsonString))
+                    {
+                        return new List<ChatroomParticipant>();
+                    }
+                    
+                    var participants = JsonSerializer.Deserialize<List<ChatroomParticipant>>(jsonString, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+                    
+                    return participants ?? new List<ChatroomParticipant>();
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"Get participants failed with status: {response.StatusCode}");
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    System.Diagnostics.Debug.WriteLine($"Error response: {errorContent}");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error getting chatroom participants: {ex.Message}");
+            }
+            
+            return new List<ChatroomParticipant>();
+        }
+
         public async Task<bool> LoadChatroomStats(int chatroomId)
         {
             try
@@ -261,6 +303,85 @@ namespace project_cuoi_ky.Services
             }
             catch (Exception)
             {
+                return false;
+            }
+        }
+
+        // Update chatroom
+        public async Task<bool> UpdateChatroom(int chatroomId, string name, string description, int updatedBy)
+        {
+            try
+            {
+                var updateRequest = new
+                {
+                    id = chatroomId,
+                    name = name,
+                    description = description,
+                    updatedBy = updatedBy
+                };
+
+                var jsonString = JsonSerializer.Serialize(updateRequest);
+                var content = new StringContent(jsonString, Encoding.UTF8, "application/json");
+
+                System.Diagnostics.Debug.WriteLine($"Updating chatroom: id={chatroomId}, name={name}");
+                System.Diagnostics.Debug.WriteLine($"API URL: {_apiBaseUrl}Chatrooms/{chatroomId}");
+                System.Diagnostics.Debug.WriteLine($"Request payload: {jsonString}");
+
+                var response = await _httpClient.PutAsync($"{_apiBaseUrl}Chatrooms/{chatroomId}", content);
+                
+                System.Diagnostics.Debug.WriteLine($"Update chatroom response: {response.StatusCode}");
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    System.Diagnostics.Debug.WriteLine($"Update chatroom error response: {errorContent}");
+                }
+                
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error updating chatroom: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                return false;
+            }
+        }
+
+        // Add user to chatroom
+        public async Task<bool> AddUserToChatroom(int chatroomId, int userIdToAdd, int addedByUserId, string role = "member")
+        {
+            try
+            {
+                var addUserData = new
+                {
+                    role = role,
+                    addedBy = addedByUserId
+                };
+                
+                var jsonContent = JsonSerializer.Serialize(addUserData);
+                var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+                
+                var url = $"{_apiBaseUrl}Chatrooms/{chatroomId}/users/{userIdToAdd}";
+                
+                System.Diagnostics.Debug.WriteLine($"Adding user to chatroom:");
+                System.Diagnostics.Debug.WriteLine($"URL: {url}");
+                System.Diagnostics.Debug.WriteLine($"Payload: {jsonContent}");
+                
+                var response = await _httpClient.PostAsync(url, httpContent);
+                
+                System.Diagnostics.Debug.WriteLine($"Add user response: {response.StatusCode}");
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    System.Diagnostics.Debug.WriteLine($"Add user error response: {errorContent}");
+                }
+                
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error adding user to chatroom: {ex.Message}");
                 return false;
             }
         }

@@ -4,7 +4,7 @@ using System.Windows.Forms;
 using project_cuoi_ky.Models;
 
 namespace project_cuoi_ky
-{
+{    
     public partial class UserCard : UserControl
     {        
         private Panel pnlMain;
@@ -14,6 +14,7 @@ namespace project_cuoi_ky
         private Label lblStatus;
         private Button btnAction;
         private Button btnReject;
+        private Button btnMessage;
         private ApiUserInfo _userInfo;
         private FriendshipStatus _friendshipStatus;
         
@@ -26,9 +27,10 @@ namespace project_cuoi_ky
             InitializeComponent();
             SetupLayout();
         }
-          private void SetupLayout()
+            
+        private void SetupLayout()
         {
-            this.Size = new Size(300, 85);
+            this.Size = new Size(380, 85); // Increased width for Message button
             this.BackColor = Color.White;
             this.BorderStyle = BorderStyle.FixedSingle;
             this.Margin = new Padding(5);
@@ -91,8 +93,7 @@ namespace project_cuoi_ky
                 Text = "Add Friend",
                 UseVisualStyleBackColor = false
             };
-            
-            // Reject button (hidden by default)
+              // Reject button (hidden by default)
             btnReject = new Button
             {
                 Location = new Point(115, 25),
@@ -111,12 +112,30 @@ namespace project_cuoi_ky
             
             btnReject.FlatAppearance.BorderSize = 0;
             btnReject.Click += BtnReject_Click;
+              // Message button (hidden by default)
+            btnMessage = new Button
+            {
+                Location = new Point(285, 25),
+                Size = new Size(80, 30),
+                Font = new Font("Segoe UI", 8, FontStyle.Bold),
+                BackColor = Color.FromArgb(0, 150, 136),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Text = "Message",
+                UseVisualStyleBackColor = false,
+                Visible = false
+            };
+            
+            btnMessage.FlatAppearance.BorderSize = 0;
+            btnMessage.Click += BtnMessage_Click;
+            
             pnlMain.Controls.Add(picAvatar);
             pnlMain.Controls.Add(lblUserName);
             pnlMain.Controls.Add(lblEmail);
             pnlMain.Controls.Add(lblStatus);
             pnlMain.Controls.Add(btnAction);
             pnlMain.Controls.Add(btnReject);
+            pnlMain.Controls.Add(btnMessage);
             
             this.Controls.Add(pnlMain);
             
@@ -155,6 +174,14 @@ namespace project_cuoi_ky
                 ActionClicked?.Invoke(this, (_userInfo.userId, "reject_request"));
             }
         }
+        
+        private void BtnMessage_Click(object sender, EventArgs e)
+        {
+            if (_userInfo != null)
+            {
+                ActionClicked?.Invoke(this, (_userInfo.userId, "start_chat"));
+            }
+        }
           
         // Overload for UserInfo (from internal models)
         public void SetUserInfo(UserInfo userInfo, FriendshipStatus friendshipStatus = FriendshipStatus.None, string rawStatus = "")
@@ -188,7 +215,7 @@ namespace project_cuoi_ky
             // Set raw status if provided
             if (!string.IsNullOrEmpty(rawStatus))
             {
-                lblStatus.Text = $"API Status: {rawStatus}";
+                lblStatus.Text = $"Status: {rawStatus}";
                 lblStatus.Visible = true;
             }
             else
@@ -214,6 +241,7 @@ namespace project_cuoi_ky
                     btnAction.Enabled = true;
                     btnAction.Location = new Point(200, 25);
                     btnReject.Visible = false;
+                    btnMessage.Visible = false;
                     break;
                     
                 case FriendshipStatus.RequestSent:
@@ -222,6 +250,7 @@ namespace project_cuoi_ky
                     btnAction.Enabled = false;
                     btnAction.Location = new Point(200, 25);
                     btnReject.Visible = false;
+                    btnMessage.Visible = false;
                     break;
                     
                 case FriendshipStatus.RequestReceived:
@@ -231,14 +260,17 @@ namespace project_cuoi_ky
                     btnAction.Location = new Point(200, 25);
                     btnAction.Size = new Size(80, 30);
                     btnReject.Visible = true;
+                    btnMessage.Visible = false;
                     break;
-                    
-                case FriendshipStatus.Friend:
-                    btnAction.Text = "Friends";
-                    btnAction.BackColor = Color.FromArgb(0, 150, 0);
+                      case FriendshipStatus.Friend:
+                    btnAction.Text = "Unfriend";
+                    btnAction.BackColor = Color.FromArgb(180, 50, 50);
                     btnAction.Enabled = true;
                     btnAction.Location = new Point(200, 25);
+                    btnAction.Size = new Size(80, 30);
                     btnReject.Visible = false;
+                    btnMessage.Visible = true;
+                    btnMessage.Location = new Point(285, 25);
                     break;
                     
                 case FriendshipStatus.Blocked:
@@ -247,6 +279,7 @@ namespace project_cuoi_ky
                     btnAction.Enabled = false;
                     btnAction.Location = new Point(200, 25);
                     btnReject.Visible = false;
+                    btnMessage.Visible = false;
                     break;
             }
         }
