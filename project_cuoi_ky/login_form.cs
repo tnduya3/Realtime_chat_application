@@ -44,6 +44,7 @@ namespace project_cuoi_ky
             public bool emailVerified { get; set; }
             public string createdAt { get; set; }
             public string lastSignInAt { get; set; }
+            public string Avatar { get; set; }
         }
         
         public login()
@@ -73,7 +74,9 @@ namespace project_cuoi_ky
             {
                 this.Show();
             }
-        }        private async void btnLogin_Click(object sender, EventArgs e)
+        }        
+        
+        private async void btnLogin_Click(object sender, EventArgs e)
         {
             string email = tbUser.Text.Trim();
             string password = tbPassword.Text;
@@ -135,6 +138,7 @@ namespace project_cuoi_ky
                             Properties.Settings.Default.EmailVerified = loginResponse.user.emailVerified;
                             Properties.Settings.Default.CreatedAt = loginResponse.user.createdAt ?? "";
                             Properties.Settings.Default.LastSignInAt = loginResponse.user.lastSignInAt ?? "";
+                            Properties.Settings.Default.Avatar = loginResponse.user.Avatar ?? "";
                         }
                         
                         Properties.Settings.Default.Save();

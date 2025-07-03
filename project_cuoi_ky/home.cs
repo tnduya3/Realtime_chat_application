@@ -66,6 +66,8 @@ namespace project_cuoi_ky
             _signalRService.UserJoinedChatroom += OnUserJoinedChatroom;
             _signalRService.UserLeftChatroom += OnUserLeftChatroom;
             _signalRService.ConnectionStatusChanged += OnConnectionStatusChanged;
+            _signalRService.UserTyping += OnUserTyping;
+            _signalRService.UserStoppedTyping += OnUserStoppedTyping;
             
             // Initialize chatroom manager
             _chatroomManager = new ChatroomManager(pnlChatroomList);
@@ -214,12 +216,11 @@ namespace project_cuoi_ky
                 // Hide edit button when no chatroom is selected
                 btnEditChatroom.Visible = false;
             }
-            
-            // Clear messages and load new ones
-            _messageManager.ClearMessages();
-            
-            // Join chatroom via SignalR
-            _ = Task.Run(async () => await _signalRService.JoinChatroomAsync(_currentChatroomId, _currentUserId));
+                  // Clear messages and typing indicators, then load new ones
+        _messageManager.ClearMessages();
+        
+        // Join chatroom via SignalR
+        _ = Task.Run(async () => await _signalRService.JoinChatroomAsync(_currentChatroomId, _currentUserId));
             
             // Load messages
             LoadMessagesForChatroom(_currentChatroomId);
@@ -241,6 +242,12 @@ namespace project_cuoi_ky
         {
             try
             {
+                // Stop typing indicator when sending message
+                if (_currentChatroomId > 0)
+                {
+                    _ = _signalRService.StopTyping(_currentUserId, _currentChatroomId);
+                }
+                
                 string messageContent = txtMessageInput.Text.Trim();
                 if (string.IsNullOrEmpty(messageContent))
                 {
@@ -508,7 +515,19 @@ namespace project_cuoi_ky
             try
             {
                 string displayText = "";
-                
+                // Lấy URL avatar từ settings 
+                string avatarUrl = Properties.Settings.Default.Avatar;
+                if (!string.IsNullOrEmpty(avatarUrl))
+                {
+                    // Tải ảnh từ URL và hiển thị
+                    userProfilePicture.Load(avatarUrl);
+                }
+                else
+                {
+                    // Nếu không có avatar, sử dụng ảnh mặc định
+                    //userProfilePicture.Image = Properties.Resources.default_avatar; // Giả sử có ảnh mặc định trong Resources
+                }
+
                 // Lấy displayName từ Settings
                 string displayName = Properties.Settings.Default.DisplayName;
                 string email = Properties.Settings.Default.UserEmail;
@@ -607,13 +626,22 @@ namespace project_cuoi_ky
             // This method is for when textbox gets focus, not for Enter key
         }
 
-        // Handle Enter key press to send message
+        // Handle Enter key press to send message and typing activity
         private void txtMessageInput_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter && !e.Shift)
             {
                 e.Handled = true; // Prevent the newline
                 btnSendMessage_Click(sender, e);
+            }
+            else
+            {
+                // User is typing, send typing indicator if haven't already
+                if (_currentChatroomId > 0)
+                {
+                    string displayName = Properties.Settings.Default.DisplayName ?? Properties.Settings.Default.UserEmail ?? "User";
+                    _ = _signalRService.SendTyping(_currentUserId, _currentChatroomId, displayName);
+                }
             }
         }
 
@@ -874,14 +902,48 @@ namespace project_cuoi_ky
             }
         }
 
-        // Test method for toast notification (for development - can be called from other events)
-        private void TestToastNotification()
+        private void txtMessageInput_Click(object sender, EventArgs e)
         {
-            _toastManager.ShowToast(
-                "Test Notification", 
-                "This is a test message to verify toast notifications are working correctly!",
-                _currentChatroomId.ToString()
-            );
+            // Chỉ gửi typing indicator khi có chatroom được chọn
+            if (_currentChatroomId > 0)
+            {
+                string displayName = Properties.Settings.Default.DisplayName ?? Properties.Settings.Default.UserEmail ?? "User";
+                _ = _signalRService.SendTyping(_currentUserId, _currentChatroomId, displayName);
+            }
+        }
+
+        private void txtMessageInput_Leave(object sender, EventArgs e)
+        {
+            // Gửi stop typing khi rời khỏi textbox
+            if (_currentChatroomId > 0)
+            {
+                _ = _signalRService.StopTyping(_currentUserId, _currentChatroomId);
+            }
+        }
+
+        private void OnUserTyping(int senderId, string senderName, int chatroomId, string currentTime)
+        {
+            this.Invoke((MethodInvoker)delegate
+            {
+                _messageManager.AddSystemMessage(senderName + " is typing...");
+                // Chỉ hiển thị typing indicator cho chatroom hiện tại
+                if (chatroomId == _currentChatroomId)
+                {
+                    _messageManager.AddSystemMessage(senderName + " is typing...");
+                }
+            });
+        }
+
+        private void OnUserStoppedTyping(int senderId, int chatroomId)
+        {
+            this.Invoke((MethodInvoker)delegate
+            {
+                // Chỉ xử lý cho chatroom hiện tại
+                if (chatroomId == _currentChatroomId)
+                {
+                    _messageManager.AddSystemMessage(senderId+ " is stopped typing...");
+                }
+            });
         }
     }
 }
