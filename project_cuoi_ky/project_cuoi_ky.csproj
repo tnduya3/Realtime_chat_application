@@ -292,6 +292,7 @@
     <Compile Include="register_form.Designer.cs">
       <DependentUpon>register_form.cs</DependentUpon>
     </Compile>
+    <Compile Include="Utils\FriendSearchHelper.cs" />
     <Compile Include="Services\ApiService.cs" />
     <Compile Include="Services\ChatroomManager.cs" />
     <Compile Include="Services\FriendService.cs" />

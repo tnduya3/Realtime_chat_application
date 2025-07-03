@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace project_cuoi_ky.Services
@@ -27,10 +28,12 @@ namespace project_cuoi_ky.Services
         public void UpdateCurrentUserId(int userId)
         {
             _currentUserId = userId;
-        }
-
-        public void ClearMessages()
+        }        public void ClearMessages()
         {
+            // Clear typing indicators first
+            ClearAllTypingIndicators();
+            
+            // Then clear all messages
             _chatMessagesPanel.Controls.Clear();
         }
 
@@ -260,6 +263,171 @@ namespace project_cuoi_ky.Services
             catch (Exception ex)
             {
                 StatusChanged?.Invoke($"Error adding system message: {ex.Message}");
+            }
+        }
+
+        // Dictionary để track typing bubbles theo user ID
+        private Dictionary<int, Panel> _typingBubbles = new Dictionary<int, Panel>();
+
+        // Thêm typing bubble
+        public void AddTypingIndicator(int senderId, string senderName, int chatroomId)
+        {
+            try
+            {
+                // Không hiển thị typing indicator của chính mình
+                if (senderId == _currentUserId)
+                    return;
+
+                // Nếu đã có typing bubble của user này, không tạo mới
+                if (_typingBubbles.ContainsKey(senderId))
+                    return;
+
+                // Create container panel 
+                var containerPanel = new Panel
+                {
+                    Width = _chatMessagesPanel.Width - 10,
+                    Height = 50,
+                    Margin = new Padding(0, 2, 0, 2),
+                    BackColor = Color.Transparent
+                };
+
+                // Create typing bubble (always appears on left side for others)
+                var typingPanel = new Panel
+                {
+                    Width = Math.Min(200, containerPanel.Width - 40),
+                    Height = 40,
+                    BackColor = Color.FromArgb(240, 240, 240), // Light gray for typing
+                    Location = new Point(10, 5) // Always left side
+                };
+
+                // Create sender label
+                var senderLabel = new Label
+                {
+                    Text = senderName,
+                    Font = new Font("Segoe UI", 8.5f, FontStyle.Bold),
+                    ForeColor = Color.FromArgb(64, 64, 64),
+                    Location = new Point(10, 3),
+                    AutoSize = true
+                };                // Create typing content with animation effect
+                var typingLabel = new Label
+                {
+                    Text = "typing.",
+                    Font = new Font("Segoe UI", 9f, FontStyle.Italic),
+                    ForeColor = Color.FromArgb(128, 128, 128),
+                    Location = new Point(10, 18),
+                    AutoSize = true
+                };
+
+                // Add controls to typing panel
+                typingPanel.Controls.Add(senderLabel);
+                typingPanel.Controls.Add(typingLabel);
+                containerPanel.Controls.Add(typingPanel);
+
+                // Store reference for later removal
+                _typingBubbles[senderId] = containerPanel;
+
+                // Add to chat panel
+                _chatMessagesPanel.Controls.Add(containerPanel);
+                
+                // Auto scroll to bottom
+                _chatMessagesPanel.ScrollControlIntoView(containerPanel);
+
+                // Start typing animation
+                StartTypingAnimation(senderId, typingLabel);
+
+                StatusChanged?.Invoke($"{senderName} is typing...");
+
+                // Start typing animation
+                StartTypingAnimation(senderId, typingLabel);
+            }
+            catch (Exception ex)
+            {
+                StatusChanged?.Invoke($"Error adding typing indicator: {ex.Message}");
+            }
+        }
+
+        // Xóa typing bubble
+        public void RemoveTypingIndicator(int senderId)
+        {
+            try
+            {
+                if (_typingBubbles.ContainsKey(senderId))
+                {
+                    var typingBubble = _typingBubbles[senderId];
+                    _chatMessagesPanel.Controls.Remove(typingBubble);
+                    _typingBubbles.Remove(senderId);
+                    
+                    typingBubble.Dispose(); // Clean up resources
+
+                    // Stop typing animation if any
+                    StopTypingAnimation(senderId);
+                }
+            }
+            catch (Exception ex)
+            {
+                StatusChanged?.Invoke($"Error removing typing indicator: {ex.Message}");
+            }
+        }
+
+        // Xóa tất cả typing bubbles (khi switch chatroom)
+        public void ClearAllTypingIndicators()
+        {
+            try
+            {
+                foreach (var kvp in _typingBubbles.ToList())
+                {
+                    RemoveTypingIndicator(kvp.Key);
+                }
+                _typingBubbles.Clear();
+            }
+            catch (Exception ex)
+            {
+                StatusChanged?.Invoke($"Error clearing typing indicators: {ex.Message}");
+            }
+        }
+
+        // Timer cho typing animation
+        private Dictionary<int, Timer> _typingAnimationTimers = new Dictionary<int, Timer>();
+
+        // Tạo typing animation effect
+        private void StartTypingAnimation(int senderId, Label typingLabel)
+        {
+            if (_typingAnimationTimers.ContainsKey(senderId))
+                return; // Already animating
+
+            var timer = new Timer();
+            timer.Interval = 500; // 0.5 seconds
+            
+            var animationStates = new[] { "typing.", "typing..", "typing..." };
+            var currentState = 0;
+            
+            timer.Tick += (s, e) =>
+            {
+                if (typingLabel != null && !typingLabel.IsDisposed)
+                {
+                    typingLabel.Text = animationStates[currentState];
+                    currentState = (currentState + 1) % animationStates.Length;
+                }
+                else
+                {
+                    timer.Stop();
+                    timer.Dispose();
+                    _typingAnimationTimers.Remove(senderId);
+                }
+            };
+            
+            _typingAnimationTimers[senderId] = timer;
+            timer.Start();
+        }
+
+        private void StopTypingAnimation(int senderId)
+        {
+            if (_typingAnimationTimers.ContainsKey(senderId))
+            {
+                var timer = _typingAnimationTimers[senderId];
+                timer.Stop();
+                timer.Dispose();
+                _typingAnimationTimers.Remove(senderId);
             }
         }
 

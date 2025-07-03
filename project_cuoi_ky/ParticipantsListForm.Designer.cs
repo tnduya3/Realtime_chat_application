@@ -38,6 +38,7 @@ namespace project_cuoi_ky
             this.lblAddUser = new System.Windows.Forms.Label();
             this.txtUserId = new System.Windows.Forms.TextBox();
             this.btnAdd = new System.Windows.Forms.Button();
+            this.cmbFriends = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
             // lblHeader
@@ -117,7 +118,21 @@ namespace project_cuoi_ky
             this.lblAddUser.Name = "lblAddUser";
             this.lblAddUser.Size = new System.Drawing.Size(72, 15);
             this.lblAddUser.TabIndex = 2;
-            this.lblAddUser.Text = "Add User ID:";
+            this.lblAddUser.Text = "Add Friend:";            
+            // 
+            // cmbFriends
+            // 
+            this.cmbFriends.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cmbFriends.Location = new System.Drawing.Point(98, 47);
+            this.cmbFriends.Name = "cmbFriends";
+            this.cmbFriends.Size = new System.Drawing.Size(200, 23);
+            this.cmbFriends.TabIndex = 3;
+            this.cmbFriends.Text = "Select a friend...";
+            this.cmbFriends.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDown;
+            this.cmbFriends.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
+            this.cmbFriends.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
+            this.cmbFriends.Enter += new System.EventHandler(this.cmbFriends_Enter);
+            this.cmbFriends.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.cmbFriends_KeyPress);
             // 
             // txtUserId
             // 
@@ -127,6 +142,7 @@ namespace project_cuoi_ky
             this.txtUserId.Size = new System.Drawing.Size(120, 23);
             this.txtUserId.TabIndex = 3;
             this.txtUserId.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtUserId_KeyPress);
+            this.txtUserId.Visible = false;
             // 
             // btnAdd
             // 
@@ -150,6 +166,7 @@ namespace project_cuoi_ky
             this.Controls.Add(this.btnAdd);
             this.Controls.Add(this.btnClose);
             this.Controls.Add(this.btnRefresh);
+            this.Controls.Add(this.cmbFriends);
             this.Controls.Add(this.txtUserId);
             this.Controls.Add(this.lblAddUser);
             this.Controls.Add(this.lstParticipants);
@@ -158,6 +175,7 @@ namespace project_cuoi_ky
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "ParticipantsListForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Chatroom Members";
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -174,6 +192,7 @@ namespace project_cuoi_ky
         private System.Windows.Forms.Button btnClose;
         private System.Windows.Forms.Label lblAddUser;
         private System.Windows.Forms.TextBox txtUserId;
+        private System.Windows.Forms.ComboBox cmbFriends;
         private System.Windows.Forms.Button btnAdd;
     }
 }

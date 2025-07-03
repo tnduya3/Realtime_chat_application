@@ -96,7 +96,7 @@ namespace project_cuoi_ky
               // Reject button (hidden by default)
             btnReject = new Button
             {
-                Location = new Point(115, 25),
+                Location = new Point(285, 25),
                 Size = new Size(80, 30),
                 Font = new Font("Segoe UI", 8, FontStyle.Bold),
                 BackColor = Color.FromArgb(180, 50, 50),
@@ -112,7 +112,8 @@ namespace project_cuoi_ky
             
             btnReject.FlatAppearance.BorderSize = 0;
             btnReject.Click += BtnReject_Click;
-              // Message button (hidden by default)
+              
+            // Message button (hidden by default)
             btnMessage = new Button
             {
                 Location = new Point(285, 25),

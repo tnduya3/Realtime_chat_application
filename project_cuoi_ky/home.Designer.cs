@@ -80,7 +80,7 @@
             this.txtSearchChatrooms.ForeColor = System.Drawing.Color.Gray;
             this.txtSearchChatrooms.Location = new System.Drawing.Point(10, 45);
             this.txtSearchChatrooms.Name = "txtSearchChatrooms";
-            this.txtSearchChatrooms.Size = new System.Drawing.Size(278, 25);
+            this.txtSearchChatrooms.Size = new System.Drawing.Size(278, 27);
             this.txtSearchChatrooms.TabIndex = 6;
             this.txtSearchChatrooms.Text = "Search chatrooms...";
             this.txtSearchChatrooms.TextChanged += new System.EventHandler(this.txtSearchChatrooms_TextChanged);
@@ -94,7 +94,7 @@
             this.contactsLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(111)))), ((int)(((byte)(111)))));
             this.contactsLabel.Location = new System.Drawing.Point(10, 10);
             this.contactsLabel.Name = "contactsLabel";
-            this.contactsLabel.Size = new System.Drawing.Size(106, 25);
+            this.contactsLabel.Size = new System.Drawing.Size(119, 30);
             this.contactsLabel.TabIndex = 5;
             this.contactsLabel.Text = "Chatrooms";
             // 
@@ -132,7 +132,7 @@
             this.userStatusLabel.ForeColor = System.Drawing.Color.Green;
             this.userStatusLabel.Location = new System.Drawing.Point(34, 15);
             this.userStatusLabel.Name = "userStatusLabel";
-            this.userStatusLabel.Size = new System.Drawing.Size(39, 13);
+            this.userStatusLabel.Size = new System.Drawing.Size(45, 17);
             this.userStatusLabel.TabIndex = 2;
             this.userStatusLabel.Text = "Online";
             this.userStatusLabel.Click += new System.EventHandler(this.userStatusLabel_Click);
@@ -144,7 +144,7 @@
             this.txtCurrentUserId.Font = new System.Drawing.Font("Yu Gothic UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtCurrentUserId.Location = new System.Drawing.Point(34, 3);
             this.txtCurrentUserId.Name = "txtCurrentUserId";
-            this.txtCurrentUserId.Size = new System.Drawing.Size(65, 15);
+            this.txtCurrentUserId.Size = new System.Drawing.Size(78, 19);
             this.txtCurrentUserId.TabIndex = 1;
             this.txtCurrentUserId.Text = "User Name";
             this.txtCurrentUserId.Click += new System.EventHandler(this.userStatusLabel_Click);
@@ -198,8 +198,11 @@
             this.txtMessageInput.Name = "txtMessageInput";
             this.txtMessageInput.Size = new System.Drawing.Size(188, 26);
             this.txtMessageInput.TabIndex = 1;
+            this.txtMessageInput.Click += new System.EventHandler(this.txtMessageInput_Click);
             this.txtMessageInput.Enter += new System.EventHandler(this.txtMessageInput_Enter);
             this.txtMessageInput.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtMessageInput_KeyDown);
+            this.txtMessageInput.Leave += new System.EventHandler(this.txtMessageInput_Leave);
+            this.txtMessageInput.MouseLeave += new System.EventHandler(this.txtMessageInput_Leave);
             // 
             // pnlChatMessages
             // 
@@ -233,7 +236,7 @@
             this.chatTitleLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(111)))), ((int)(((byte)(111)))));
             this.chatTitleLabel.Location = new System.Drawing.Point(10, 13);
             this.chatTitleLabel.Name = "chatTitleLabel";
-            this.chatTitleLabel.Size = new System.Drawing.Size(142, 21);
+            this.chatTitleLabel.Size = new System.Drawing.Size(160, 25);
             this.chatTitleLabel.TabIndex = 4;
             this.chatTitleLabel.Text = "Select a chatroom";
             // 

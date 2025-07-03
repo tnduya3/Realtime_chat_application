@@ -9,12 +9,13 @@ namespace project_cuoi_ky.Services
     {
         private HubConnection _hubConnection;
         private readonly string _hubUrl;
-        
-        public event Action<MessageDisplayData> MessageReceived;
+          public event Action<MessageDisplayData> MessageReceived;
         public event Action<string, string, string> NotificationReceived;
         public event Action<string, string, string, string> UserJoinedChatroom;
         public event Action<string, string, string, string> UserLeftChatroom;
         public event Action<string> ConnectionStatusChanged;
+        public event Action<int, string, int, string> UserTyping;
+        public event Action<int, int> UserStoppedTyping;
         
         public bool IsConnected => _hubConnection?.State == HubConnectionState.Connected;
 
@@ -45,11 +46,20 @@ namespace project_cuoi_ky.Services
                 _hubConnection.On<string, string, string, string>("UserJoinedChatroom", (userId, username, chatroomId, joinedAt) =>
                 {
                     UserJoinedChatroom?.Invoke(userId, username, chatroomId, joinedAt);
-                });
-
-                _hubConnection.On<string, string, string, string>("UserLeftChatroom", (userId, username, chatroomId, leftAt) =>
+                });                _hubConnection.On<string, string, string, string>("UserLeftChatroom", (userId, username, chatroomId, leftAt) =>
                 {
                     UserLeftChatroom?.Invoke(userId, username, chatroomId, leftAt);
+                });
+
+                // Register typing events
+                _hubConnection.On<int, string, int, string>("UserTyping", (senderId, senderName, chatroomId, currentTime) =>
+                {
+                    UserTyping?.Invoke(senderId, senderName, chatroomId, currentTime);
+                });
+
+                _hubConnection.On<int, int>("UserStoppedTyping", (senderId, chatroomId) =>
+                {
+                    UserStoppedTyping?.Invoke(senderId, chatroomId);
                 });
 
                 _hubConnection.Closed += async (error) =>
@@ -165,6 +175,46 @@ namespace project_cuoi_ky.Services
             catch (Exception ex)
             {
                 throw new Exception($"Error sending chatroom notification via SignalR: {ex.Message}", ex);
+            }
+        }
+
+        // Phương thức gửi tin nhận typing indicator
+        public async Task SendTyping(int senderId, int chatroomId, string senderName)
+        {
+            try
+            {
+                if (IsConnected)
+                {
+                    await _hubConnection.InvokeAsync("SendTyping", senderId, chatroomId, senderName);
+                }
+                else
+                {
+                    throw new InvalidOperationException("SignalR not connected");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error sending typing indicator via SignalR: {ex.Message}", ex);
+            }
+        }
+
+        // Phương thức ngừng typing
+        public async Task StopTyping(int senderId, int chatroomId)
+        {
+            try
+            {
+                if (IsConnected)
+                {
+                    await _hubConnection.InvokeAsync("StopTyping", senderId, chatroomId);
+                }
+                else
+                {
+                    throw new InvalidOperationException("SignalR not connected");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error sending stop typing via SignalR: {ex.Message}", ex);
             }
         }
 

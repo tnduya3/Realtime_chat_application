@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using project_cuoi_ky.Services;
+using project_cuoi_ky.Models;
+using project_cuoi_ky.Utils;
 
 namespace project_cuoi_ky
 {
@@ -12,10 +15,15 @@ namespace project_cuoi_ky
         private string _chatroomName;
         private int _chatroomId;
         private int _currentUserId;
-        
+        private FriendService _friendService;
+        private List<FriendInfo> _friendsList;
+        private bool _isUpdatingComboBox = false;
+          
         public ParticipantsListForm()
         {
             InitializeComponent();
+            _friendService = new FriendService("https://localhost:7092/api/");
+            _friendsList = new List<FriendInfo>();
             SetupForm();
         }
 
@@ -46,15 +54,12 @@ namespace project_cuoi_ky
             
             // Setup tooltips
             var tooltip = new ToolTip();
-            tooltip.SetToolTip(txtUserId, "Enter the User ID of the person you want to add to this chatroom");
-            tooltip.SetToolTip(btnAdd, "Add user as a member to this chatroom");
+            tooltip.SetToolTip(cmbFriends, "Select a friend to add to this chatroom");
+            tooltip.SetToolTip(btnAdd, "Add selected friend to this chatroom");
             tooltip.SetToolTip(btnRefresh, "Refresh the members list");
             
-            // Setup placeholder-like behavior
-            txtUserId.Text = "Enter User ID...";
-            txtUserId.ForeColor = Color.Gray;
-            txtUserId.Enter += txtUserId_Enter;
-            txtUserId.Leave += txtUserId_Leave;
+            // Setup ComboBox
+            SetupFriendsComboBox();
         }
         
         private void LoadParticipants()
@@ -75,6 +80,9 @@ namespace project_cuoi_ky
                     lblHeader.Text = "No members found";
                     ShowNoMembersMessage();
                 }
+                
+                // Load friends list for ComboBox
+                LoadFriendsList();
             }
             catch (Exception ex)
             {
@@ -152,54 +160,48 @@ namespace project_cuoi_ky
           
         private void btnAddUser_Click(object sender, EventArgs e)
         {
-            // Raise event to parent form to add user
-            var userIdText = txtUserId.Text.Trim();
-            
-            // Check for placeholder text
-            if (string.IsNullOrEmpty(userIdText) || userIdText == "Enter User ID...")
+            try
             {
-                MessageBox.Show("Please enter a User ID.", "Input Required", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                txtUserId.Focus();
-                return;
+                // Check if a friend is selected
+                if (cmbFriends.SelectedItem == null || !(cmbFriends.SelectedItem is FriendInfo selectedFriend))
+                {
+                    MessageBox.Show("Please select a friend to add to the chatroom.", "No Friend Selected", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    cmbFriends.Focus();
+                    return;
+                }
+                
+                // Validate selected friend
+                if (selectedFriend.userId <= 0)
+                {
+                    MessageBox.Show("Invalid friend selection. Please try again.", "Invalid Selection", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    cmbFriends.Focus();
+                    return;
+                }
+                
+                // Check if user is already a member (double-check)
+                if (_participants?.Any(p => p.userId == selectedFriend.userId) == true)
+                {
+                    MessageBox.Show($"{selectedFriend.userName} is already a member of this chatroom.", "User Already Exists", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    cmbFriends.Focus();
+                    return;
+                }
+                
+                // Raise event to parent form
+                AddUserRequested?.Invoke(this, new AddUserEventArgs 
+                { 
+                    UserId = selectedFriend.userId, 
+                    ChatroomId = _chatroomId, 
+                    AddedBy = _currentUserId 
+                });
             }
-            
-            if (!int.TryParse(userIdText, out int userId))
+            catch (Exception ex)
             {
-                MessageBox.Show("Please enter a valid User ID (numbers only).", "Invalid Input", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                txtUserId.Focus();
-                txtUserId.SelectAll();
-                return;
+                MessageBox.Show($"Error adding user: {ex.Message}", "Error", 
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-            
-            // Validate userId is positive
-            if (userId <= 0)
-            {
-                MessageBox.Show("User ID must be a positive number.", "Invalid Input", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                txtUserId.Focus();
-                txtUserId.SelectAll();
-                return;
-            }
-            
-            // Check if user is already a member
-            if (_participants?.Any(p => p.userId == userId) == true)
-            {
-                MessageBox.Show("This user is already a member of the chatroom.", "User Already Exists", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-                txtUserId.Focus();
-                txtUserId.SelectAll();
-                return;
-            }
-            
-            // Raise event to parent form
-            AddUserRequested?.Invoke(this, new AddUserEventArgs 
-            { 
-                UserId = userId, 
-                ChatroomId = _chatroomId, 
-                AddedBy = _currentUserId 
-            });
         }
         
         private void txtUserId_KeyPress(object sender, KeyPressEventArgs e)
@@ -235,6 +237,152 @@ namespace project_cuoi_ky
                 txtUserId.ForeColor = Color.Gray;
             }
         }
+          
+        private void SetupFriendsComboBox()
+        {
+            cmbFriends.Text = "Type friend name...";
+            cmbFriends.ForeColor = Color.Gray;
+            cmbFriends.DisplayMember = "userName";
+            cmbFriends.ValueMember = "userId";
+            
+            // Add events
+            cmbFriends.TextChanged += cmbFriends_TextChanged;
+            cmbFriends.Leave += cmbFriends_Leave;
+        }
+          
+        private async void LoadFriendsList()
+        {
+            try
+            {
+                if (_currentUserId <= 0)
+                {
+                    System.Diagnostics.Debug.WriteLine("Cannot load friends: Invalid current user ID");
+                    return;
+                }
+                
+                var friendsResponse = await _friendService.GetUserFriends(_currentUserId);
+                if (friendsResponse?.Friends != null)
+                {
+                    _friendsList = friendsResponse.Friends.ToList();
+                    UpdateFriendsComboBox();
+                }
+                else
+                {
+                    _friendsList = new List<FriendInfo>();
+                    cmbFriends.Text = "Failed to load friends";
+                    cmbFriends.ForeColor = Color.Red;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error loading friends: {ex.Message}");
+                _friendsList = new List<FriendInfo>();
+                cmbFriends.Text = "Error loading friends";
+                cmbFriends.ForeColor = Color.Red;
+            }
+        }
+        
+        private void UpdateFriendsComboBox()
+        {
+            if (_isUpdatingComboBox) return; // Prevent recursion
+            
+            try
+            {
+                _isUpdatingComboBox = true;
+                
+                // Clear current items safely
+                cmbFriends.BeginUpdate();
+                cmbFriends.DataSource = null;
+                cmbFriends.Items.Clear();
+                
+                if (_friendsList?.Count > 0)
+                {
+                    // Filter out friends who are already participants
+                    var availableFriends = _friendsList.Where(f => 
+                        !_participants.Any(p => p.userId == f.userId)).ToList();
+                    
+                    if (availableFriends.Count > 0)
+                    {
+                        cmbFriends.DataSource = availableFriends;
+                        cmbFriends.SelectedIndex = -1; // No selection initially
+                        cmbFriends.Text = "Type friend name...";
+                        cmbFriends.ForeColor = Color.Gray;
+                    }
+                    else
+                    {
+                        cmbFriends.Text = "All friends are already members";
+                        cmbFriends.ForeColor = Color.Gray;
+                    }
+                }
+                else
+                {
+                    cmbFriends.Text = "No friends available";
+                    cmbFriends.ForeColor = Color.Gray;
+                }
+                
+                cmbFriends.EndUpdate();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error updating ComboBox: {ex.Message}");
+                cmbFriends.EndUpdate();
+            }
+            finally
+            {
+                _isUpdatingComboBox = false;
+            }
+        }        // ComboBox event handlers
+        private void cmbFriends_Enter(object sender, EventArgs e)
+        {
+            try
+            {
+                // Load friends list if not loaded yet
+                if (_friendsList == null || _friendsList.Count == 0)
+                {
+                    LoadFriendsList();
+                }
+                
+                // Clear placeholder text and prepare for typing
+                if (cmbFriends.Text == "Type friend name..." || cmbFriends.Text == "Select a friend..." || 
+                    cmbFriends.Text == "No friends available" || 
+                    cmbFriends.Text == "Failed to load friends" || cmbFriends.Text == "Error loading friends" ||
+                    cmbFriends.Text == "All friends are already members")
+                {
+                    _isUpdatingComboBox = true;
+                    cmbFriends.Text = "";
+                    cmbFriends.ForeColor = Color.Black;
+                    _isUpdatingComboBox = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in Enter event: {ex.Message}");
+            }
+        }
+        
+        private void cmbFriends_Leave(object sender, EventArgs e)
+        {
+            // If text is empty, restore placeholder
+            if (string.IsNullOrWhiteSpace(cmbFriends.Text))
+            {
+                _isUpdatingComboBox = true;
+                cmbFriends.Text = "Type friend name...";
+                cmbFriends.ForeColor = Color.Gray;
+                _isUpdatingComboBox = false;
+            }
+        }
+        
+        private void cmbFriends_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            // Handle Enter key
+            if (e.KeyChar == (char)Keys.Enter)
+            {
+                e.Handled = true;
+                btnAddUser_Click(sender, e);
+            }
+        }
+        
+        // Legacy TextBox event handlers (keeping for compatibility, but hidden)
         
         // Event to notify parent form to refresh participants data
         public event EventHandler RefreshRequested;
@@ -248,12 +396,90 @@ namespace project_cuoi_ky
             _participants = participants ?? new List<ChatroomParticipant>();
             LoadParticipants();
         }
-          // Clear the add user textbox
+          
+        // Clear the add user input
         public void ClearAddUserInput()
         {
-            txtUserId.Text = "Enter User ID...";
-            txtUserId.ForeColor = Color.Gray;
-            txtUserId.Focus();
+            _isUpdatingComboBox = true;
+            cmbFriends.SelectedIndex = -1;
+            cmbFriends.Text = "Type friend name...";
+            cmbFriends.ForeColor = Color.Gray;
+            _isUpdatingComboBox = false;
+            cmbFriends.Focus();
+            
+            // Refresh friends list to update available friends
+            UpdateFriendsComboBox();
+        }
+
+        private void cmbFriends_TextChanged(object sender, EventArgs e)
+        {
+            // Skip if we're updating programmatically or no friends loaded
+            if (_isUpdatingComboBox || _friendsList?.Count == 0)
+                return;
+                
+            // Skip if text is placeholder
+            var currentText = cmbFriends.Text;
+            if (string.IsNullOrWhiteSpace(currentText) || 
+                currentText == "Type friend name..." || 
+                currentText == "Select a friend..." ||
+                currentText == "No friends available" ||
+                currentText == "All friends are already members")
+                return;
+                
+            try
+            {
+                _isUpdatingComboBox = true;
+                
+                // Filter friends based on search term
+                var availableFriends = _friendsList.Where(f => 
+                    !_participants.Any(p => p.userId == f.userId)).ToList();
+                
+                var filteredFriends = FriendSearchHelper.SearchFriends(availableFriends, currentText);
+                
+                // Update ComboBox items safely
+                cmbFriends.BeginUpdate();
+                
+                // Clear DataSource first, then clear items
+                var currentSelection = cmbFriends.Text;
+                cmbFriends.DataSource = null;
+                cmbFriends.Items.Clear();
+                
+                if (filteredFriends.Count > 0)
+                {
+                    cmbFriends.DataSource = filteredFriends;
+                    cmbFriends.DroppedDown = true; // Show dropdown with results
+                    cmbFriends.Text = currentSelection; // Restore user's text
+                    cmbFriends.SelectionStart = currentSelection.Length; // Cursor at end
+                    cmbFriends.ForeColor = Color.Black;
+                }
+                else
+                {
+                    // No results found
+                    cmbFriends.Text = currentSelection;
+                    cmbFriends.ForeColor = Color.Red;
+                }
+                
+                cmbFriends.EndUpdate();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in TextChanged: {ex.Message}");
+                // Reset ComboBox on error
+                try
+                {
+                    cmbFriends.DataSource = null;
+                    cmbFriends.Items.Clear();
+                    UpdateFriendsComboBox();
+                }
+                catch
+                {
+                    // Ignore errors in recovery
+                }
+            }
+            finally
+            {
+                _isUpdatingComboBox = false;
+            }
         }
     }
 }

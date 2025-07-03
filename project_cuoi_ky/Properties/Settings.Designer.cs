@@ -8,155 +8,138 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace project_cuoi_ky.Properties
-{
-
-
+namespace project_cuoi_ky.Properties {
+    
+    
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "11.0.0.0")]
-    internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase
-    {
-
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.13.0.0")]
+    internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
+        
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
-
-        public static Settings Default
-        {
-            get
-            {
+        
+        public static Settings Default {
+            get {
                 return defaultInstance;
             }
         }
-
+        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string AccessToken
-        {
-            get
-            {
+        public string AccessToken {
+            get {
                 return ((string)(this["AccessToken"]));
             }
-            set
-            {
+            set {
                 this["AccessToken"] = value;
             }
         }
-
+        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string RefreshToken
-        {
-            get
-            {
+        public string RefreshToken {
+            get {
                 return ((string)(this["RefreshToken"]));
             }
-            set
-            {
+            set {
                 this["RefreshToken"] = value;
             }
         }
-
+        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string UserId
-        {
-            get
-            {
+        public string UserId {
+            get {
                 return ((string)(this["UserId"]));
             }
-            set
-            {
+            set {
                 this["UserId"] = value;
             }
         }
-
+        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string UserEmail
-        {
-            get
-            {
+        public string UserEmail {
+            get {
                 return ((string)(this["UserEmail"]));
             }
-            set
-            {
+            set {
                 this["UserEmail"] = value;
             }
-        }        [global::System.Configuration.UserScopedSettingAttribute()]
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool IsLoggedIn
-        {
-            get
-            {
+        public bool IsLoggedIn {
+            get {
                 return ((bool)(this["IsLoggedIn"]));
             }
-            set
-            {
+            set {
                 this["IsLoggedIn"] = value;
             }
         }
-
+        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string DisplayName
-        {
-            get
-            {
+        public string DisplayName {
+            get {
                 return ((string)(this["DisplayName"]));
             }
-            set
-            {
+            set {
                 this["DisplayName"] = value;
             }
         }
-
+        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool EmailVerified
-        {
-            get
-            {
+        public bool EmailVerified {
+            get {
                 return ((bool)(this["EmailVerified"]));
             }
-            set
-            {
+            set {
                 this["EmailVerified"] = value;
             }
         }
-
+        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string CreatedAt
-        {
-            get
-            {
+        public string CreatedAt {
+            get {
                 return ((string)(this["CreatedAt"]));
             }
-            set
-            {
+            set {
                 this["CreatedAt"] = value;
             }
         }
-
+        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string LastSignInAt
-        {
-            get
-            {
+        public string LastSignInAt {
+            get {
                 return ((string)(this["LastSignInAt"]));
             }
-            set
-            {
+            set {
                 this["LastSignInAt"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string Avatar {
+            get {
+                return ((string)(this["Avatar"]));
+            }
+            set {
+                this["Avatar"] = value;
             }
         }
     }
