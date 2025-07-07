@@ -216,8 +216,8 @@ namespace project_cuoi_ky
                 // Hide edit button when no chatroom is selected
                 btnEditChatroom.Visible = false;
             }
-                  // Clear messages and typing indicators, then load new ones
-        _messageManager.ClearMessages();
+                // Clear messages and typing indicators, then load new ones
+                _messageManager.ClearMessages();
         
         // Join chatroom via SignalR
         _ = Task.Run(async () => await _signalRService.JoinChatroomAsync(_currentChatroomId, _currentUserId));
@@ -921,15 +921,21 @@ namespace project_cuoi_ky
             }
         }
 
-        private void OnUserTyping(int senderId, string senderName, int chatroomId, string currentTime)
+        private void OnUserTyping(int senderId, string senderName, int chatroomId)
         {
             this.Invoke((MethodInvoker)delegate
             {
-                _messageManager.AddSystemMessage(senderName + " is typing...");
+                Console.WriteLine($"[DEBUG] OnUserTyping called: senderId={senderId}, senderName={senderName}, chatroomId={chatroomId}, currentChatroomId={_currentChatroomId}");
+                
                 // Chỉ hiển thị typing indicator cho chatroom hiện tại
                 if (chatroomId == _currentChatroomId)
                 {
-                    _messageManager.AddSystemMessage(senderName + " is typing...");
+                    Console.WriteLine($"[DEBUG] Adding typing indicator for {senderName} in chatroom {chatroomId}");
+                    _messageManager.AddTypingIndicator(senderId, senderName, chatroomId);
+                }
+                else
+                {
+                    Console.WriteLine($"[DEBUG] User {senderName} is typing in chatroom {chatroomId}, but current chatroom is {_currentChatroomId}. Ignoring.");
                 }
             });
         }
@@ -938,10 +944,13 @@ namespace project_cuoi_ky
         {
             this.Invoke((MethodInvoker)delegate
             {
+                Console.WriteLine($"[DEBUG] OnUserStoppedTyping called: senderId={senderId}, chatroomId={chatroomId}, currentChatroomId={_currentChatroomId}");
+                
                 // Chỉ xử lý cho chatroom hiện tại
                 if (chatroomId == _currentChatroomId)
                 {
-                    _messageManager.AddSystemMessage(senderId+ " is stopped typing...");
+                    Console.WriteLine($"[DEBUG] Removing typing indicator for user {senderId} in chatroom {chatroomId}");
+                    _messageManager.RemoveTypingIndicator(senderId);
                 }
             });
         }

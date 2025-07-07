@@ -9,17 +9,22 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using project_cuoi_ky.Services;
 using project_cuoi_ky.Models;
+using Microsoft.AspNetCore.SignalR.Client;
 
 namespace project_cuoi_ky
 {
     public partial class friend_list : Form
     {
-        private const string ApiBaseUrl = "https://localhost:7092/api/";        
+        private const string ApiBaseUrl = "https://localhost:7092/api/";
+        private const string SignalRHubUrl = "https://localhost:7092/chathub";
+        
         private FriendService _friendService;
+        private SignalRService _signalRService;
         private int _currentUserId;
         private List<project_cuoi_ky.Models.ApiUserInfo> _allUsers;
         private List<project_cuoi_ky.Models.FriendInfo> _friends;
         private List<project_cuoi_ky.Models.ApiUserInfo> _pendingRequests;
+        private List<project_cuoi_ky.Models.OnlineUser> _onlineUsers;
         private string _searchText = "";
         private Dictionary<int, project_cuoi_ky.Models.FriendshipStatus> _statusCache;
         private Dictionary<int, string> _rawStatusCache;
@@ -32,12 +37,17 @@ namespace project_cuoi_ky
             LoadUserInfoFromSettings();
             
             // Initialize services
-            _friendService = new FriendService(ApiBaseUrl);            
+            _friendService = new FriendService(ApiBaseUrl);
+            _signalRService = new SignalRService(SignalRHubUrl);
             _allUsers = new List<ApiUserInfo>();
             _friends = new List<FriendInfo>();
             _pendingRequests = new List<ApiUserInfo>();
+            _onlineUsers = new List<OnlineUser>();
             _statusCache = new Dictionary<int, FriendshipStatus>();
             _rawStatusCache = new Dictionary<int, string>();
+            
+            // Setup SignalR events
+            SetupSignalREvents();
         }
         
         private void LoadUserInfoFromSettings()
@@ -74,8 +84,40 @@ namespace project_cuoi_ky
         
         private async void friend_list_Load(object sender, EventArgs e)
         {
+            await InitializeSignalR();
             await LoadAllData();
-        }        
+        }
+        
+        private async Task InitializeSignalR()
+        {
+            try
+            {
+                await _signalRService.InitializeAsync();
+                await _signalRService.RegisterUserAsync(_currentUserId);
+            }
+            catch (Exception ex)
+            {
+                lblOnlineUsersStatus.Text = $"SignalR connection failed: {ex.Message}";
+                lblOnlineUsersStatus.ForeColor = Color.Red;
+            }
+        }
+        
+        private void SetupSignalREvents()
+        {
+            _signalRService.ConnectionStatusChanged += OnSignalRStatusChanged;
+        }
+        
+        private void OnSignalRStatusChanged(string status)
+        {
+            if (this.InvokeRequired)
+            {
+                this.Invoke((MethodInvoker)delegate { OnSignalRStatusChanged(status); });
+                return;
+            }
+            
+            lblOnlineUsersStatus.Text = status;
+            lblOnlineUsersStatus.ForeColor = status.Contains("Connected") ? Color.Green : Color.Orange;
+        }
         
         private async Task LoadAllData()
         {
@@ -86,6 +128,7 @@ namespace project_cuoi_ky
             await LoadAllUsers();
             await LoadFriends();
             await LoadPendingRequests();
+            await LoadOnlineUsers();
             
             // Load statuses for all users in background
             await LoadFriendshipStatuses();
@@ -241,6 +284,110 @@ namespace project_cuoi_ky
                 userCard.Width = pnlRequests.Width - 25;
                 
                 pnlRequests.Controls.Add(userCard);
+            }
+        }
+        
+        private async Task LoadOnlineUsers()
+        {
+            try
+            {
+                lblOnlineUsersStatus.Text = "Loading online users...";
+                lblOnlineUsersStatus.ForeColor = Color.Blue;
+                
+                if (!_signalRService.IsConnected)
+                {
+                    lblOnlineUsersStatus.Text = "SignalR not connected";
+                    lblOnlineUsersStatus.ForeColor = Color.Orange;
+                    return;
+                }
+                
+                // Setup event handler for online users response
+                var tcs = new TaskCompletionSource<bool>();
+                Action<List<OnlineUser>, int, DateTime> onlineUsersHandler = null;
+                
+                onlineUsersHandler = (users, totalCount, timestamp) =>
+                {
+                    _onlineUsers = users ?? new List<OnlineUser>();
+                    this.Invoke((MethodInvoker)delegate
+                    {
+                        DisplayOnlineUsers();
+                        lblOnlineUsersStatus.Text = $"Found {_onlineUsers.Count} users online";
+                        lblOnlineUsersStatus.ForeColor = Color.Green;
+                    });
+                    
+                    // Remove event handler
+                    _signalRService.OnlineUsersReceived -= onlineUsersHandler;
+                    tcs.SetResult(true);
+                };
+                
+                _signalRService.OnlineUsersReceived += onlineUsersHandler;
+                
+                // Request online users from SignalR Hub
+                await _signalRService.GetAllOnlineUsersAsync();
+                
+                // Wait for response with timeout
+                var timeoutTask = Task.Delay(5000);
+                var completedTask = await Task.WhenAny(tcs.Task, timeoutTask);
+                
+                if (completedTask == timeoutTask)
+                {
+                    _signalRService.OnlineUsersReceived -= onlineUsersHandler;
+                    lblOnlineUsersStatus.Text = "Timeout loading online users";
+                    lblOnlineUsersStatus.ForeColor = Color.Red;
+                }
+            }
+            catch (Exception ex)
+            {
+                lblOnlineUsersStatus.Text = $"Error loading online users: {ex.Message}";
+                lblOnlineUsersStatus.ForeColor = Color.Red;
+            }
+        }
+        
+        private void DisplayOnlineUsers()
+        {
+            pnlOnlineUsers.Controls.Clear();
+            
+            if (_onlineUsers == null || _onlineUsers.Count == 0)
+            {
+                var noUsersLabel = new Label
+                {
+                    Text = "No users currently online",
+                    AutoSize = true,
+                    ForeColor = Color.Gray,
+                    Font = new Font("Segoe UI", 10),
+                    Padding = new Padding(10)
+                };
+                pnlOnlineUsers.Controls.Add(noUsersLabel);
+                return;
+            }
+            
+            // Filter out current user
+            var filteredUsers = _onlineUsers.Where(u => u.userId != _currentUserId).ToList();
+            
+            // Apply search filter if any
+            if (!string.IsNullOrEmpty(_searchText) && _searchText != "Search users...")
+            {
+                filteredUsers = filteredUsers.Where(u => 
+                    u.username.ToLower().Contains(_searchText.ToLower())).ToList();
+            }
+            
+            foreach (var onlineUser in filteredUsers)
+            {
+                // Convert OnlineUser to ApiUserInfo for UserCard
+                var userInfo = new ApiUserInfo
+                {
+                    userId = onlineUser.userId,
+                    userName = onlineUser.username,
+                    email = "", // Online users might not have email info
+                    isOnline = true
+                };
+                
+                var userCard = new UserCard();
+                userCard.SetOnlineUserInfo(onlineUser, userInfo);
+                userCard.ActionClicked += OnUserCardActionClicked;
+                userCard.Width = pnlOnlineUsers.Width - 25;
+                
+                pnlOnlineUsers.Controls.Add(userCard);
             }
         }
           
@@ -445,16 +592,22 @@ namespace project_cuoi_ky
         {
             _searchText = txtSearch.Text;
             
-            // Only filter All Users tab for now
-            if (tabControl.SelectedIndex == 0)
+            // Filter based on current tab
+            switch (tabControl.SelectedIndex)
             {
-                await DisplayAllUsers();
+                case 0: // All Users tab
+                    await DisplayAllUsers();
+                    break;
+                case 3: // Online Users tab
+                    DisplayOnlineUsers();
+                    break;
             }
         }
           
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             _friendService?.Dispose();
+            _ = Task.Run(async () => await _signalRService?.DisconnectAsync());
             base.OnFormClosing(e);
         }
 

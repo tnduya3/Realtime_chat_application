@@ -231,6 +231,44 @@ namespace project_cuoi_ky
             // Update button based on friendship status
             UpdateActionButton(friendshipStatus);
         }
+        
+        // New method for online users
+        public void SetOnlineUserInfo(OnlineUser onlineUser, ApiUserInfo userInfo)
+        {
+            _userInfo = userInfo;
+            
+            lblUserName.Text = onlineUser.username;
+            lblEmail.Text = $"Connected at: {onlineUser.connectedAt:HH:mm}";
+            
+            // Show online status with green indicator
+            lblStatus.Text = "● Online";
+            lblStatus.ForeColor = Color.Green;
+            
+            // Setup avatar (if available)
+            //if (!string.IsNullOrEmpty(onlineUser.avatar))
+            //{
+            //    try
+            //    {
+            //        picAvatar.Load(onlineUser.avatar);
+            //    }
+            //    catch
+            //    {
+            //        SetDefaultAvatar();
+            //    }
+            //}
+            //else
+            //{
+            //    SetDefaultAvatar();
+            //}
+            
+            // Show message button for online users
+            btnMessage.Visible = true;
+            btnMessage.Location = new Point(285, 25);
+            
+            // Hide other action buttons
+            btnAction.Visible = false;
+            btnReject.Visible = false;
+        }
           
         private void UpdateActionButton(FriendshipStatus status)
         {

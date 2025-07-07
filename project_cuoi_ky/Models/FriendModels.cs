@@ -114,4 +114,39 @@ namespace project_cuoi_ky.Models
         RequestReceived, // Nhận được lời mời
         Blocked         // Bị block
     }
+
+    // Model for online users from SignalR
+    public class OnlineUser
+    {
+        public int userId { get; set; }
+        public string username { get; set; } = "";
+        public string avatar { get; set; } = "";
+        public string onlineStatus { get; set; } = "online";
+        public DateTime connectedAt { get; set; }
+        public int connectionCount { get; set; }
+    }
+
+    // Response model for online users
+    public class OnlineUsersResponse
+    {
+        public List<OnlineUser> users { get; set; } = new List<OnlineUser>();
+        public int totalCount { get; set; }
+        public DateTime timestamp { get; set; }
+    }
+
+    // Model for typing events from SignalR
+    public class TypingEventData
+    {
+        public int senderId { get; set; }
+        public string senderName { get; set; } = "";
+        public int chatroomId { get; set; }
+        public DateTime timestamp { get; set; }
+    }
+
+    public class StoppedTypingEventData
+    {
+        public int senderId { get; set; }
+        public int chatroomId { get; set; }
+        public DateTime timestamp { get; set; }
+    }
 }
