@@ -39,6 +39,9 @@
             this.tabRequests = new System.Windows.Forms.TabPage();
             this.pnlRequests = new System.Windows.Forms.FlowLayoutPanel();
             this.lblRequestsStatus = new System.Windows.Forms.Label();
+            this.tabOnlineUsers = new System.Windows.Forms.TabPage();
+            this.pnlOnlineUsers = new System.Windows.Forms.FlowLayoutPanel();
+            this.lblOnlineUsersStatus = new System.Windows.Forms.Label();
             this.txtSearch = new System.Windows.Forms.TextBox();
             this.lblTitle = new System.Windows.Forms.Label();
             this.btnRefresh = new System.Windows.Forms.Button();
@@ -47,6 +50,7 @@
             this.tabAllUsers.SuspendLayout();
             this.tabFriends.SuspendLayout();
             this.tabRequests.SuspendLayout();
+            this.tabOnlineUsers.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControl
@@ -54,6 +58,7 @@
             this.tabControl.Controls.Add(this.tabAllUsers);
             this.tabControl.Controls.Add(this.tabFriends);
             this.tabControl.Controls.Add(this.tabRequests);
+            this.tabControl.Controls.Add(this.tabOnlineUsers);
             this.tabControl.Location = new System.Drawing.Point(12, 80);
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
@@ -162,6 +167,40 @@
             this.lblRequestsStatus.TabIndex = 0;
             this.lblRequestsStatus.Text = "Loading requests...";
             // 
+            // tabOnlineUsers
+            // 
+            this.tabOnlineUsers.Controls.Add(this.pnlOnlineUsers);
+            this.tabOnlineUsers.Controls.Add(this.lblOnlineUsersStatus);
+            this.tabOnlineUsers.Location = new System.Drawing.Point(4, 22);
+            this.tabOnlineUsers.Name = "tabOnlineUsers";
+            this.tabOnlineUsers.Padding = new System.Windows.Forms.Padding(3);
+            this.tabOnlineUsers.Size = new System.Drawing.Size(768, 332);
+            this.tabOnlineUsers.TabIndex = 3;
+            this.tabOnlineUsers.Text = "Online Users";
+            this.tabOnlineUsers.UseVisualStyleBackColor = true;
+            // 
+            // pnlOnlineUsers
+            // 
+            this.pnlOnlineUsers.AutoScroll = true;
+            this.pnlOnlineUsers.BackColor = System.Drawing.Color.White;
+            this.pnlOnlineUsers.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+            this.pnlOnlineUsers.Location = new System.Drawing.Point(6, 35);
+            this.pnlOnlineUsers.Name = "pnlOnlineUsers";
+            this.pnlOnlineUsers.Size = new System.Drawing.Size(756, 291);
+            this.pnlOnlineUsers.TabIndex = 1;
+            this.pnlOnlineUsers.WrapContents = false;
+            // 
+            // lblOnlineUsersStatus
+            // 
+            this.lblOnlineUsersStatus.AutoSize = true;
+            this.lblOnlineUsersStatus.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.lblOnlineUsersStatus.ForeColor = System.Drawing.Color.Gray;
+            this.lblOnlineUsersStatus.Location = new System.Drawing.Point(6, 10);
+            this.lblOnlineUsersStatus.Name = "lblOnlineUsersStatus";
+            this.lblOnlineUsersStatus.Size = new System.Drawing.Size(139, 19);
+            this.lblOnlineUsersStatus.TabIndex = 0;
+            this.lblOnlineUsersStatus.Text = "Loading online users...";
+            // 
             // txtSearch
             // 
             this.txtSearch.Font = new System.Drawing.Font("Segoe UI", 10F);
@@ -236,6 +275,8 @@
             this.tabFriends.PerformLayout();
             this.tabRequests.ResumeLayout(false);
             this.tabRequests.PerformLayout();
+            this.tabOnlineUsers.ResumeLayout(false);
+            this.tabOnlineUsers.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -247,12 +288,15 @@
         private System.Windows.Forms.TabPage tabAllUsers;
         private System.Windows.Forms.TabPage tabFriends;
         private System.Windows.Forms.TabPage tabRequests;
+        private System.Windows.Forms.TabPage tabOnlineUsers;
         private System.Windows.Forms.FlowLayoutPanel pnlAllUsers;
         private System.Windows.Forms.FlowLayoutPanel pnlFriends;
         private System.Windows.Forms.FlowLayoutPanel pnlRequests;
+        private System.Windows.Forms.FlowLayoutPanel pnlOnlineUsers;
         private System.Windows.Forms.Label lblAllUsersStatus;
         private System.Windows.Forms.Label lblFriendsStatus;
         private System.Windows.Forms.Label lblRequestsStatus;
+        private System.Windows.Forms.Label lblOnlineUsersStatus;
         private System.Windows.Forms.TextBox txtSearch;
         private System.Windows.Forms.Label lblTitle;
         private System.Windows.Forms.Button btnRefresh;
